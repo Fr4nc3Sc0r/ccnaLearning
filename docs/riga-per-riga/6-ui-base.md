@@ -10,12 +10,12 @@ Nota ricorrente: ogni classe grafica contiene `private static final long serialV
 
 ## Ui.java
 
-`src/main/java/com/ccnaexamlab/ui/Ui.java` — colori, caratteri e funzioni per creare componenti nello stile del programma.
+`src/main/java/com/lordoc/ui/Ui.java` — colori, caratteri e funzioni per creare componenti nello stile del programma.
 
 **Righe 1–13**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
  3  import javax.swing.BorderFactory;
  4  import javax.swing.JButton;
@@ -215,12 +215,12 @@ Formatta una percentuale senza decimali: `%.0f` è il numero arrotondato, `%%` s
 
 ## WrapLabel.java
 
-`src/main/java/com/ccnaexamlab/ui/WrapLabel.java` — etichetta multilinea con a capo automatico.
+`src/main/java/com/lordoc/ui/WrapLabel.java` — etichetta multilinea con a capo automatico.
 
 **Righe 1–5**
 
 ```java
-1  package com.ccnaexamlab.ui;
+1  package com.lordoc.ui;
 2  
 3  import javax.swing.JTextArea;
 4  import java.awt.Color;
@@ -263,12 +263,12 @@ Costruttore: imposta testo (con `super(text)`, cioè il costruttore di `JTextAre
 
 ## ScrollablePanel.java
 
-`src/main/java/com/ccnaexamlab/ui/ScrollablePanel.java` — pannello che segue la larghezza della finestra.
+`src/main/java/com/lordoc/ui/ScrollablePanel.java` — pannello che segue la larghezza della finestra.
 
 **Righe 1–7**
 
 ```java
-1  package com.ccnaexamlab.ui;
+1  package com.lordoc.ui;
 2  
 3  import javax.swing.JPanel;
 4  import javax.swing.Scrollable;
@@ -351,14 +351,14 @@ Costruttore: passa il layout scelto al pannello.
 
 ## ScoreBar.java
 
-`src/main/java/com/ccnaexamlab/ui/ScoreBar.java` — barra grafica del punteggio con la soglia.
+`src/main/java/com/lordoc/ui/ScoreBar.java` — barra grafica del punteggio con la soglia.
 
 **Righe 1–11**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.ExamResult;
+ 3  import com.lordoc.model.ExamResult;
  4  
  5  import javax.swing.JComponent;
  6  import java.awt.BasicStroke;
@@ -473,14 +473,14 @@ Scrive "Soglia 825" centrata sotto la linea (senza uscire dal bordo destro: `Mat
 
 ## ScoreChart.java
 
-`src/main/java/com/ccnaexamlab/ui/ScoreChart.java` — grafico a linee dei punteggi nel tempo.
+`src/main/java/com/lordoc/ui/ScoreChart.java` — grafico a linee dei punteggi nel tempo.
 
 **Righe 1–13**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.ExamResult;
+ 3  import com.lordoc.model.ExamResult;
  4  
  5  import javax.swing.JComponent;
  6  import java.awt.BasicStroke;
@@ -644,19 +644,19 @@ Didascalia "Ultimi N esami" in basso a destra e rilascio del pennello.
 
 ## MainFrame.java
 
-`src/main/java/com/ccnaexamlab/ui/MainFrame.java` — la finestra principale e la navigazione tra le schermate.
+`src/main/java/com/lordoc/ui/MainFrame.java` — la finestra principale e la navigazione tra le schermate.
 
 **Righe 1–21**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.app.AppContext;
- 4  import com.ccnaexamlab.engine.Scorer;
- 5  import com.ccnaexamlab.model.ExamMode;
- 6  import com.ccnaexamlab.model.ExamResult;
- 7  import com.ccnaexamlab.model.ExamSession;
- 8  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.app.AppContext;
+ 4  import com.lordoc.engine.Scorer;
+ 5  import com.lordoc.model.ExamMode;
+ 6  import com.lordoc.model.ExamResult;
+ 7  import com.lordoc.model.ExamSession;
+ 8  import com.lordoc.model.Question;
  9  
 10  import javax.swing.JFrame;
 11  import javax.swing.JMenu;
@@ -907,15 +907,15 @@ Se c'è un esame e l'utente non conferma, non fa nulla; altrimenti chiude la fin
 
 ## HomePanel.java
 
-`src/main/java/com/ccnaexamlab/ui/HomePanel.java` — il menu principale a schede.
+`src/main/java/com/lordoc/ui/HomePanel.java` — il menu principale a schede.
 
 **Righe 1–9**
 
 ```java
-1  package com.ccnaexamlab.ui;
+1  package com.lordoc.ui;
 2  
-3  import com.ccnaexamlab.app.AppContext;
-4  import com.ccnaexamlab.model.ExamSession;
+3  import com.lordoc.app.AppContext;
+4  import com.lordoc.model.ExamSession;
 5  
 6  import javax.swing.JPanel;
 7  import javax.swing.JTabbedPane;

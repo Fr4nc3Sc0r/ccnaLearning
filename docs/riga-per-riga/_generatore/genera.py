@@ -43,7 +43,7 @@ for af in ann_files:
         if starts and starts[0] != 0:
             # righe iniziali non coperte
             errors.append(f"{f['path']}: righe 1-{starts[0]} non coperte")
-        out += ["---", "", f"## {os.path.basename(f['path'])}", "", f"`src/main/java/com/ccnaexamlab/{f['path']}` — {f['desc']}", ""]
+        out += ["---", "", f"## {os.path.basename(f['path'])}", "", f"`src/main/java/com/lordoc/{f['path']}` — {f['desc']}", ""]
         for k, c in enumerate(f['chunks']):
             s = starts[k]; e = (starts[k+1] if k+1 < len(starts) else len(code)) - 1
             while e > s and code[e].strip() == '': e -= 1

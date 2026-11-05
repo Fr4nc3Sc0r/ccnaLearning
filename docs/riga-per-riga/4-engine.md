@@ -8,12 +8,12 @@ Il pacchetto `engine` prepara gli esami (`ExamFactory`, con `ExamConfig`, `Quest
 
 ## QuestionFilter.java
 
-`src/main/java/com/ccnaexamlab/engine/QuestionFilter.java` — i filtri per scegliere le domande.
+`src/main/java/com/lordoc/engine/QuestionFilter.java` — i filtri per scegliere le domande.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.engine;
+1  package com.lordoc.engine;
 2  
 3  /** Filtro sulle domande da includere in un esame personalizzato. */
 ```
@@ -57,15 +57,15 @@ Campo e costruttore dell'etichetta.
 
 ## ExamConfig.java
 
-`src/main/java/com/ccnaexamlab/engine/ExamConfig.java` — i parametri di un esame personalizzato.
+`src/main/java/com/lordoc/engine/ExamConfig.java` — i parametri di un esame personalizzato.
 
 **Righe 1–7**
 
 ```java
-1  package com.ccnaexamlab.engine;
+1  package com.lordoc.engine;
 2  
-3  import com.ccnaexamlab.model.Domain;
-4  import com.ccnaexamlab.model.ExamMode;
+3  import com.lordoc.model.Domain;
+4  import com.lordoc.model.ExamMode;
 5  
 6  import java.util.EnumSet;
 7  import java.util.Set;
@@ -151,12 +151,12 @@ Distribuzione pesata sì/no.
 
 ## PresetExam.java
 
-`src/main/java/com/ccnaexamlab/engine/PresetExam.java` — un esame predefinito (nome + ID delle domande).
+`src/main/java/com/lordoc/engine/PresetExam.java` — un esame predefinito (nome + ID delle domande).
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.engine;
+1  package com.lordoc.engine;
 2  
 3  import java.util.List;
 ```
@@ -207,21 +207,21 @@ Getter e `size()` (numero di domande).
 
 ## ExamFactory.java
 
-`src/main/java/com/ccnaexamlab/engine/ExamFactory.java` — la costruzione di tutti i tipi di esame.
+`src/main/java/com/lordoc/engine/ExamFactory.java` — la costruzione di tutti i tipi di esame.
 
 **Righe 1–18**
 
 ```java
- 1  package com.ccnaexamlab.engine;
+ 1  package com.lordoc.engine;
  2  
- 3  import com.ccnaexamlab.data.QuestionBank;
- 4  import com.ccnaexamlab.data.QuestionStat;
- 5  import com.ccnaexamlab.data.SubnetQuestionGenerator;
- 6  import com.ccnaexamlab.data.UserDataStore;
- 7  import com.ccnaexamlab.model.Domain;
- 8  import com.ccnaexamlab.model.ExamMode;
- 9  import com.ccnaexamlab.model.ExamSession;
-10  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.data.QuestionBank;
+ 4  import com.lordoc.data.QuestionStat;
+ 5  import com.lordoc.data.SubnetQuestionGenerator;
+ 6  import com.lordoc.data.UserDataStore;
+ 7  import com.lordoc.model.Domain;
+ 8  import com.lordoc.model.ExamMode;
+ 9  import com.lordoc.model.ExamSession;
+10  import com.lordoc.model.Question;
 11  
 12  import java.util.ArrayList;
 13  import java.util.Collections;
@@ -562,18 +562,18 @@ Se gli arrotondamenti hanno superato il numero richiesto, toglie le ultime doman
 
 ## Scorer.java
 
-`src/main/java/com/ccnaexamlab/engine/Scorer.java` — la correzione dell'esame.
+`src/main/java/com/lordoc/engine/Scorer.java` — la correzione dell'esame.
 
 **Righe 1–11**
 
 ```java
- 1  package com.ccnaexamlab.engine;
+ 1  package com.lordoc.engine;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.DomainScore;
- 5  import com.ccnaexamlab.model.ExamResult;
- 6  import com.ccnaexamlab.model.ExamSession;
- 7  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.DomainScore;
+ 5  import com.lordoc.model.ExamResult;
+ 6  import com.lordoc.model.ExamSession;
+ 7  import com.lordoc.model.Question;
  8  
  9  import java.time.LocalDateTime;
 10  import java.util.EnumMap;

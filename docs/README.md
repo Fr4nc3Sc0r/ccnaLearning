@@ -1,4 +1,4 @@
-# Documentazione di CCNA ExamLab
+# Documentazione di Lordoc
 
 Questa cartella contiene la documentazione completa del programma. È scritta pensando a chi **non ha mai
 scritto una riga di codice**: ogni concetto tecnico viene prima spiegato con parole semplici e con esempi

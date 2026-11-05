@@ -1,7 +1,7 @@
 # TITLE: Riga per riga — pacchetto `ui` (3/3): svolgimento dell'esame e report
 # INTRO: Questa parte copre lo schermo dell'esame (`ExamPanel`), il disegno della domanda (`QuestionView`), il riepilogo (`ItemReviewDialog`), il report (`ResultsPanel`) e la revisione (`ReviewDialog`). Descrizione generale: [06 - ui](../06-classi-ui.md); flowchart: [algoritmo 9](../08-algoritmi.md#9-svolgimento-dellesame-navigazione-timer-e-consegna).
 @@ ui/ExamPanel.java | lo schermo dell'esame in corso.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import (modello, componenti Swing, tastiera, timer).
 >> /** Schermata di svolgimento dell'esame. */
 Inizio della classe.
@@ -58,7 +58,7 @@ Consegna una sola volta: se `finished` è già vero esce; altrimenti lo imposta,
 >> /** Ferma il timer senza consegnare (es. chiusura finestra). */
 `abort`: segna come finito e ferma il timer senza consegnare (usato quando si abbandona l'esame).
 @@ ui/QuestionView.java | il disegno di una domanda e dell'area di risposta.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /**
 Commento della classe.
@@ -153,7 +153,7 @@ Mostra verdetto e risposta corretta; se c'è una spiegazione aggiunge il titolo 
 >> /** Rimuove la mini-sintassi `codice` e **grassetto** per la visualizzazione in testo semplice. */
 `plain`: toglie gli apici inversi e gli asterischi doppi dalla spiegazione.
 @@ ui/ItemReviewDialog.java | il riepilogo delle domande durante l'esame.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Riepilogo di tutte le domande (risposte/incomplete/marcate) con salto rapido. */
 Inizio della classe (finestra secondaria).
@@ -182,7 +182,7 @@ Cerca la prima domanda marcata (o la prima incompleta) e ci salta; se non ce ne 
 >> public int getSelectedIndex() { return selectedIndex; }
 Getter letti da `ExamPanel` dopo la chiusura.
 @@ ui/ResultsPanel.java | il report finale.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Report finale dell'esame: punteggio, dettaglio per dominio, revisione domande. */
 Inizio della classe.
@@ -221,7 +221,7 @@ Apre la revisione sulle domande filtrate, partendo dalla riga indicata (limitata
 >> private final class QuestionsModel extends AbstractTableModel {
 Modello della tabella: righe = domande visibili; valori: numero nell'esame, ID (con ⚑ se marcata), dominio, tipo, esito (corretta / errata / mancante).
 @@ ui/ReviewDialog.java | la revisione domanda per domanda.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Revisione post-esame: mostra domanda, risposta data, risposta corretta e spiegazione. */
 Inizio della classe.

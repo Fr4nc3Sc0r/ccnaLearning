@@ -1,7 +1,7 @@
 # TITLE: Riga per riga — pacchetto `engine`
 # INTRO: Il pacchetto `engine` prepara gli esami (`ExamFactory`, con `ExamConfig`, `QuestionFilter` e `PresetExam`) e li corregge (`Scorer`). Descrizione generale: [05 - engine](../05-classi-engine.md).
 @@ engine/QuestionFilter.java | i filtri per scegliere le domande.
->> package com.ccnaexamlab.engine;
+>> package com.lordoc.engine;
 Pacchetto e commento.
 >> public enum QuestionFilter {
 I cinque filtri, ognuno con l'etichetta mostrata nel menu a tendina della finestra "Esame personalizzato".
@@ -10,7 +10,7 @@ Campo e costruttore dell'etichetta.
 >> @Override
 `toString` restituisce l'etichetta, così il menu a tendina mostra il testo in italiano.
 @@ engine/ExamConfig.java | i parametri di un esame personalizzato.
->> package com.ccnaexamlab.engine;
+>> package com.lordoc.engine;
 Pacchetto e import.
 >> /** Parametri per la creazione di un esame personalizzato. */
 Inizio della classe.
@@ -25,7 +25,7 @@ Ritorno indietro consentito.
 >> /** Se true le domande vengono distribuite secondo i pesi dei domini del blueprint. */
 Distribuzione pesata sì/no.
 @@ engine/PresetExam.java | un esame predefinito (nome + ID delle domande).
->> package com.ccnaexamlab.engine;
+>> package com.lordoc.engine;
 Pacchetto e import.
 >> /** Un esame predefinito (insieme fisso di domande), come "Esame A", "Esame B"... */
 Inizio della classe.
@@ -36,7 +36,7 @@ Costruttore: salva il nome e una copia non modificabile della lista.
 >> public String getName() { return name; }
 Getter e `size()` (numero di domande).
 @@ engine/ExamFactory.java | la costruzione di tutti i tipi di esame.
->> package com.ccnaexamlab.engine;
+>> package com.lordoc.engine;
 Pacchetto e import: banca, statistiche, generatore, modello e collezioni Java.
 >> /** Costruisce gli esami: predefiniti, casuali e personalizzati. */
 Inizio della classe.
@@ -93,7 +93,7 @@ Riempie gli eventuali posti mancanti con avanzate casuali, fermandosi (`break`) 
 >> while (chosen.size() > count) {
 Se gli arrotondamenti hanno superato il numero richiesto, toglie le ultime domande in eccesso.
 @@ engine/Scorer.java | la correzione dell'esame.
->> package com.ccnaexamlab.engine;
+>> package com.lordoc.engine;
 Pacchetto e import.
 >> /** Corregge un esame. */
 Inizio della classe; costruttore privato perché contiene solo un metodo statico.

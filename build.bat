@@ -1,5 +1,5 @@
 @echo off
-REM Compila il progetto e crea dist\ccna-examlab.jar usando solo il JDK (nessun Maven richiesto).
+REM Compila il progetto e crea dist\lordoc.jar usando solo il JDK (nessun Maven richiesto).
 setlocal
 cd /d "%~dp0"
 
@@ -16,12 +16,12 @@ echo Copia risorse...
 xcopy /e /i /q src\main\resources build\classes >nul
 
 echo Creazione JAR...
-jar --create --file dist\ccna-examlab.jar --main-class com.ccnaexamlab.app.Main -C build\classes . || goto :error
+jar --create --file dist\lordoc.jar --main-class com.lordoc.app.Main -C build\classes . || goto :error
 
 echo Verifica banca domande...
-java -jar dist\ccna-examlab.jar --validate || goto :error
+java -jar dist\lordoc.jar --validate || goto :error
 
-echo Fatto: dist\ccna-examlab.jar  (avvio: java -jar dist\ccna-examlab.jar)
+echo Fatto: dist\lordoc.jar  (avvio: java -jar dist\lordoc.jar)
 goto :eof
 
 :error

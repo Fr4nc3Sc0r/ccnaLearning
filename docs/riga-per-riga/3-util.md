@@ -8,12 +8,12 @@ Funzioni di utilità senza stato: calcoli sugli indirizzi IPv4 (`IpUtils`) e tra
 
 ## IpUtils.java
 
-`src/main/java/com/ccnaexamlab/util/IpUtils.java` — calcoli IPv4 con operazioni sui bit.
+`src/main/java/com/lordoc/util/IpUtils.java` — calcoli IPv4 con operazioni sui bit.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.util;
+1  package com.lordoc.util;
 2  
 3  /** Funzioni di utilità per indirizzi IPv4 (usate dal calcolatore e dal generatore di subnetting). */
 ```
@@ -223,12 +223,12 @@ Controllo comune: un prefisso fuori da 0-32 genera un errore con un messaggio ch
 
 ## Text.java
 
-`src/main/java/com/ccnaexamlab/util/Text.java` — utilità per i testi.
+`src/main/java/com/lordoc/util/Text.java` — utilità per i testi.
 
 **Righe 1–6**
 
 ```java
-1  package com.ccnaexamlab.util;
+1  package com.lordoc.util;
 2  
 3  /** Piccole utilità per testo e formattazione. */
 4  public final class Text {

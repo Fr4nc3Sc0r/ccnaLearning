@@ -1,10 +1,10 @@
 # TITLE: Riga per riga — pacchetto `app`
 # INTRO: Il pacchetto `app` contiene il punto di partenza del programma (`Main`) e il contenitore dei servizi condivisi (`AppContext`). Per la descrizione generale vedi [07 - app e util](../07-classi-app-util.md).
 @@ app/Main.java | punto di ingresso: avvia la grafica o la validazione da riga di comando.
->> package com.ccnaexamlab.app;
-Dichiara il **pacchetto** del file: la classe vive nella "cartella logica" `com.ccnaexamlab.app`. Deve corrispondere alla cartella fisica `src/main/java/com/ccnaexamlab/app/`.
->> import com.ccnaexamlab.data.QuestionBank;
-Gli `import` elencano le classi di altri pacchetti che useremo: la banca domande, il magazzino dei dati utente e la finestra principale (classi nostre), poi tre classi di Swing: `JOptionPane` (messaggi a comparsa), `SwingUtilities` (per lavorare sul filo della grafica) e `UIManager` (aspetto grafico).
+>> package com.lordoc.app;
+Dichiara il **pacchetto** del file: la classe vive nella "cartella logica" `com.lordoc.app`. Deve corrispondere alla cartella fisica `src/main/java/com/lordoc/app/`.
+>> import com.lordoc.data.QuestionBank;
+Gli `import` elencano le classi di altri pacchetti che useremo: la banca domande, il magazzino dei dati utente e la finestra principale (classi nostre), `Path` (un percorso di file), poi tre classi di Swing: `JOptionPane` (messaggi a comparsa), `SwingUtilities` (per lavorare sul filo della grafica) e `UIManager` (aspetto grafico).
 >> /** Punto di ingresso dell'applicazione. */
 Commento di documentazione (Javadoc): spiega a cosa serve la classe. I commenti non vengono eseguiti.
 >> public final class Main {
@@ -20,9 +20,9 @@ Se è stato passato almeno un argomento e il primo è `--validate`, esegue la va
 >> SwingUtilities.invokeLater(() -> {
 Tutto ciò che riguarda la grafica deve girare sul filo della grafica (EDT). `invokeLater` gli consegna il blocco di codice tra le graffe (una *lambda*) da eseguire appena possibile.
 >> setLookAndFeel();
-Sceglie l'aspetto grafico (quello del sistema operativo, o quello richiesto con `-Dccna.laf`).
->> UserDataStore store = new UserDataStore(UserDataStore.defaultDirectory());
-Crea il magazzino dei dati utente puntato su `~/.ccna-examlab` e lo carica: crea la cartella se manca, legge storico e statistiche.
+Sceglie l'aspetto grafico (quello del sistema operativo, o quello richiesto con `-Dlordoc.laf`).
+>> Path dataDir = UserDataStore.defaultDirectory();
+Calcola la cartella dei dati (`~/.lordoc`); se l'utente aveva usato la versione precedente del programma (chiamata "CCNA ExamLab") sposta la vecchia cartella `~/.ccna-examlab` nella nuova, così non perde storico e statistiche. Poi crea il magazzino dei dati utente su quella cartella e lo carica: crea la cartella se manca, legge storico e statistiche.
 >> QuestionBank bank = QuestionBank.load(store.getUserQuestionsDirectory());
 Carica tutte le domande: quelle incluse nel programma più quelle personali nella sottocartella `questions`.
 >> AppContext ctx = new AppContext(bank, store);
@@ -38,15 +38,15 @@ Metodo `validate`: usato da `--validate` e dagli script di build.
 >> private static int validate() {
 Carica solo le domande incluse (`null` = nessuna cartella utente), stampa il totale e, per ogni dominio, una riga formattata (`%-40s` = testo allineato a sinistra su 40 caratteri, `%3d` = numero su 3 cifre). Poi stampa ogni errore. Restituisce 0 se non ci sono errori, altrimenti 1 (operatore ternario `condizione ? a : b`).
 >> private static void setLookAndFeel() {
-Legge la proprietà `ccna.laf` (passabile con `-Dccna.laf=Nimbus`). Se presente, cerca tra gli aspetti installati quello con lo stesso nome (ignorando maiuscole) e lo applica, poi esce con `return`. Altrimenti applica l'aspetto del sistema operativo.
+Legge la proprietà `lordoc.laf` (passabile con `-Dlordoc.laf=Nimbus`). Se presente, cerca tra gli aspetti installati quello con lo stesso nome (ignorando maiuscole) e lo applica, poi esce con `return`. Altrimenti applica l'aspetto del sistema operativo.
 >> } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException e) {
 Se l'aspetto non si può caricare, invece di bloccarsi scrive un messaggio sull'uscita d'errore e prosegue con l'aspetto predefinito di Java.
 @@ app/AppContext.java | contenitore dei servizi condivisi.
->> package com.ccnaexamlab.app;
+>> package com.lordoc.app;
 Pacchetto e import: usa la banca domande, il magazzino dati e la fabbrica di esami.
 >> /** Servizi condivisi dall'applicazione. */
 Inizio della classe `AppContext`.
->> public static final String APP_NAME = "CCNA ExamLab";
+>> public static final String APP_NAME = "Lordoc";
 Due **costanti** (`static final`): il nome e la versione del programma, mostrati nel titolo e nella finestra "Informazioni". La versione va tenuta allineata a quella in `pom.xml`.
 >> private final QuestionBank bank;
 I tre servizi. `private final`: visibili solo qui dentro e impostati una sola volta.

@@ -29,14 +29,14 @@ programma. Ogni sezione indica esattamente quali file toccare.
 | **JDK 17+** | compilare ed eseguire | es. Eclipse Temurin da adoptium.net; verifica con `java -version` e `javac -version` |
 | **VS Code** + *Extension Pack for Java* | modificare e avviare comodamente | il progetto contiene `.vscode/` già configurato (F5 avvia, Ctrl+Shift+B crea il JAR) |
 | **Git** | tenere traccia delle modifiche | `git pull` per aggiornare, `git commit` / `git push` per pubblicare |
-| *Maven* (facoltativo) | build alternativa | `mvn package` → `target/ccna-examlab.jar` |
+| *Maven* (facoltativo) | build alternativa | `mvn package` → `target/lordoc.jar` |
 
 Comandi principali dalla cartella del progetto:
 
 ```bash
-./build.sh                                  # Windows: build.bat   → compila e crea dist/ccna-examlab.jar
-java -jar dist/ccna-examlab.jar             # avvia
-java -jar dist/ccna-examlab.jar --validate  # controlla le domande senza aprire finestre
+./build.sh                                  # Windows: build.bat   → compila e crea dist/lordoc.jar
+java -jar dist/lordoc.jar             # avvia
+java -jar dist/lordoc.jar --validate  # controlla le domande senza aprire finestre
 ```
 
 ---
@@ -47,8 +47,8 @@ Ci sono **due strade**.
 
 ### Strada A — Domande personali (nessuna compilazione)
 
-1. Avvia il programma una volta: crea la cartella `~/.ccna-examlab/questions/`
-   (su Windows `C:\Users\<nome>\.ccna-examlab\questions\`; il percorso esatto è nel menu
+1. Avvia il programma una volta: crea la cartella `~/.lordoc/questions/`
+   (su Windows `C:\Users\<nome>\.lordoc\questions\`; il percorso esatto è nel menu
    **File → Cartella dati utente…**).
 2. Crea in quella cartella un file di testo con estensione `.txt` (es. `mie-domande.txt`), salvato in
    **UTF-8** (in Blocco note: *Salva con nome → Codifica: UTF-8*).
@@ -226,8 +226,8 @@ comuni sono definiti in `ReferencePanel` (regole `css.addRule(...)`).
 | Soglie colore delle barre dominio | `ui/ResultsPanel.java`, `ui/HistoryPanel.java` | `82.5` e `60` | 82,5% / 60% |
 | Avviso tempo in esaurimento | `ui/ExamPanel.java` | `updateTimer()` | ultimi 300 s |
 | Dimensioni della finestra | `ui/MainFrame.java` | `setSize`, `setMinimumSize` | 1240×840 / 980×680 |
-| Nome e versione | `app/AppContext.java` + `pom.xml` | `APP_NAME`, `VERSION` | CCNA ExamLab 1.0.0 |
-| Cartella dati | riga di comando | `-Dccna.examlab.home=...` | `~/.ccna-examlab` |
+| Nome e versione | `app/AppContext.java` + `pom.xml` | `APP_NAME`, `VERSION` | Lordoc 1.0.0 |
+| Cartella dati | riga di comando | `-Dlordoc.home=...` | `~/.lordoc` |
 
 ---
 
@@ -338,7 +338,7 @@ nome (`root.add(pannello, "nome")`) e mostrala con `cards.show(root, "nome")`.
 | `javac` / `java` non trovato | JDK non installato o non nel PATH | reinstalla il JDK con l'opzione PATH, riapri il terminale |
 | `error: invalid target release: 17` | JDK più vecchio di 17 | installa JDK 17+ |
 | VS Code mostra errori ovunque | progetto non importato o JDK sbagliato | attendi "Java: Ready"; *Java: Configure Java Runtime*; *Java: Clean Java Language Server Workspace* |
-| Lo storico non si salva | permessi sulla cartella utente | verifica i permessi di `~/.ccna-examlab` o usa `-Dccna.examlab.home` |
+| Lo storico non si salva | permessi sulla cartella utente | verifica i permessi di `~/.lordoc` o usa `-Dlordoc.home` |
 | Righe dello storico ignorate | file modificato a mano in modo errato | correggi o elimina le righe indicate nella console |
 | Finestra troppo piccola / testo enorme | scaling dello schermo | modifica i font in `Ui.java` o prova `-Dsun.java2d.uiScale=1.25` |
 | Domanda corretta segnata come sbagliata (FILL) | manca una forma della risposta | aggiungi l'alternativa con `\|` in `answer` |
@@ -402,5 +402,5 @@ nome (`root.add(pannello, "nome")`) e mostrala con `cards.show(root, "nome")`.
    Schema consigliato *MAGGIORE.MINORE.CORREZIONE*: correzioni di domande → +0.0.1; nuove domande o
    funzioni → +0.1.0; cambi incompatibili (nuovo blueprint, formato dati) → +1.0.0.
 2. `./build.sh` e prova manuale (§10).
-3. Commit, push, e su GitHub crea una *Release* allegando `dist/ccna-examlab.jar` (la CI lo produce anche
+3. Commit, push, e su GitHub crea una *Release* allegando `dist/lordoc.jar` (la CI lo produce anche
    come artefatto scaricabile dal job "build").

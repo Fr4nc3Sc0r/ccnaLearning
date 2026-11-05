@@ -8,12 +8,12 @@ Il pacchetto `data` legge le domande dai file (`QuestionParser`, `QuestionBank`)
 
 ## QuestionParseException.java
 
-`src/main/java/com/ccnaexamlab/data/QuestionParseException.java` — errore di formato in un file di domande.
+`src/main/java/com/lordoc/data/QuestionParseException.java` — errore di formato in un file di domande.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.data;
+1  package com.lordoc.data;
 2  
 3  /** Errore di formato in un file di domande. */
 ```
@@ -44,17 +44,17 @@ Il costruttore riceve il messaggio d'errore e lo passa alla classe madre con `su
 
 ## QuestionParser.java
 
-`src/main/java/com/ccnaexamlab/data/QuestionParser.java` — lettura del formato a blocchi `[Q]...[/Q]`.
+`src/main/java/com/lordoc/data/QuestionParser.java` — lettura del formato a blocchi `[Q]...[/Q]`.
 
 **Righe 1–17**
 
 ```java
- 1  package com.ccnaexamlab.data;
+ 1  package com.lordoc.data;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.Question;
- 5  import com.ccnaexamlab.model.QuestionType;
- 6  import com.ccnaexamlab.util.Text;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.Question;
+ 5  import com.lordoc.model.QuestionType;
+ 6  import com.lordoc.util.Text;
  7  
  8  import java.io.BufferedReader;
  9  import java.io.IOException;
@@ -468,15 +468,15 @@ Come `raw`, ma senza spazi agli estremi: usato per i campi su una riga.
 
 ## QuestionBank.java
 
-`src/main/java/com/ccnaexamlab/data/QuestionBank.java` — archivio di tutte le domande caricate.
+`src/main/java/com/lordoc/data/QuestionBank.java` — archivio di tutte le domande caricate.
 
 **Righe 1–20**
 
 ```java
- 1  package com.ccnaexamlab.data;
+ 1  package com.lordoc.data;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.Question;
  5  
  6  import java.io.BufferedReader;
  7  import java.io.IOException;
@@ -503,7 +503,7 @@ Pacchetto e import.
 22  /**
 23   * Archivio delle domande. Carica le domande incluse nel programma (risorse elencate in
 24   * {@code /questions/index.txt}) e quelle aggiunte dall'utente nella cartella
-25   * {@code ~/.ccna-examlab/questions/*.txt}.
+25   * {@code ~/.lordoc/questions/*.txt}.
 26   */
 ```
 
@@ -691,12 +691,12 @@ Conteggio per dominio: prima mette 0 per tutti i domini (così compaiono anche q
 
 ## QuestionStat.java
 
-`src/main/java/com/ccnaexamlab/data/QuestionStat.java` — statistiche persistenti di una domanda.
+`src/main/java/com/lordoc/data/QuestionStat.java` — statistiche persistenti di una domanda.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.data;
+1  package com.lordoc.data;
 2  
 3  /** Statistiche persistenti di una singola domanda. */
 ```
@@ -762,19 +762,19 @@ Getter; `getWrong` calcola le risposte sbagliate come differenza. Getter e sette
 
 ## UserDataStore.java
 
-`src/main/java/com/ccnaexamlab/data/UserDataStore.java` — storico e statistiche su file.
+`src/main/java/com/lordoc/data/UserDataStore.java` — storico e statistiche su file.
 
 **Righe 1–23**
 
 ```java
- 1  package com.ccnaexamlab.data;
+ 1  package com.lordoc.data;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.DomainScore;
- 5  import com.ccnaexamlab.model.ExamMode;
- 6  import com.ccnaexamlab.model.ExamResult;
- 7  import com.ccnaexamlab.model.ExamSession;
- 8  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.DomainScore;
+ 5  import com.lordoc.model.ExamMode;
+ 6  import com.lordoc.model.ExamResult;
+ 7  import com.lordoc.model.ExamSession;
+ 8  import com.lordoc.model.Question;
  9  
 10  import java.io.BufferedWriter;
 11  import java.io.IOException;
@@ -798,7 +798,7 @@ Pacchetto e import: modello, file (`java.nio.file`), date e collezioni.
 
 ```java
 25  /**
-26   * Dati persistenti dell'utente, salvati come file di testo (TSV) in {@code ~/.ccna-examlab}:
+26   * Dati persistenti dell'utente, salvati come file di testo (TSV) in {@code ~/.lordoc}:
 27   * <ul>
 28   *   <li>{@code history.tsv} – storico degli esami svolti</li>
 29   *   <li>{@code stats.tsv} – statistiche per domanda (viste, corrette, marcate)</li>
@@ -845,277 +845,307 @@ Costruttore: calcola i percorsi dei file dentro la cartella (`resolve` = "cartel
 
 ```java
 47      public static Path defaultDirectory() {
-48          String override = System.getProperty("ccna.examlab.home");
+48          String override = System.getProperty("lordoc.home");
 49          if (override != null && !override.isBlank()) {
 50              return Paths.get(override);
 51          }
-52          return Paths.get(System.getProperty("user.home"), ".ccna-examlab");
+52          return Paths.get(System.getProperty("user.home"), ".lordoc");
 53      }
 ```
 
-Cartella predefinita: se è stata impostata la proprietà `ccna.examlab.home` usa quella, altrimenti `.ccna-examlab` nella cartella personale (`user.home`).
+Cartella predefinita: se è stata impostata la proprietà `lordoc.home` usa quella, altrimenti `.lordoc` nella cartella personale (`user.home`).
 
-**Righe 55–57**
+**Righe 55–59**
 
 ```java
-55      public Path getDirectory() { return dir; }
-56  
-57      public Path getUserQuestionsDirectory() { return dir.resolve("questions"); }
+55      /**
+56       * Compatibilità con le versioni precedenti, quando il programma si chiamava "CCNA ExamLab":
+57       * se esiste la vecchia cartella {@code ~/.ccna-examlab} e la nuova cartella non esiste ancora,
+58       * la rinomina, così storico e statistiche non vanno persi.
+59       */
+```
+
+Commento del metodo di migrazione.
+
+**Righe 60–70**
+
+```java
+60      public static void migrateLegacyDirectory(Path target) {
+61          Path legacy = Paths.get(System.getProperty("user.home"), ".ccna-examlab");
+62          if (Files.isDirectory(legacy) && !Files.exists(target)) {
+63              try {
+64                  Files.move(legacy, target);
+65                  System.out.println("Dati utente spostati da " + legacy + " a " + target);
+66              } catch (IOException e) {
+67                  System.err.println("Impossibile spostare " + legacy + ": " + e.getMessage());
+68              }
+69          }
+70      }
+```
+
+Se esiste la cartella della versione precedente (`~/.ccna-examlab`, quando il programma si chiamava "CCNA ExamLab") ed è una cartella, e la nuova cartella non esiste ancora, la rinomina (`Files.move`) nella nuova: storico, statistiche e domande personali vengono conservati. Se lo spostamento fallisce lo segnala senza bloccare il programma. Se la nuova cartella esiste già non tocca nulla.
+
+**Righe 72–74**
+
+```java
+72      public Path getDirectory() { return dir; }
+73  
+74      public Path getUserQuestionsDirectory() { return dir.resolve("questions"); }
 ```
 
 Getter della cartella dati e della sottocartella delle domande personali.
 
-**Righe 59–67**
+**Righe 76–84**
 
 ```java
-59      public void load() {
-60          try {
-61              Files.createDirectories(getUserQuestionsDirectory());
-62          } catch (IOException e) {
-63              System.err.println("Impossibile creare " + dir + ": " + e.getMessage());
-64          }
-65          loadHistory();
-66          loadStats();
-67      }
+76      public void load() {
+77          try {
+78              Files.createDirectories(getUserQuestionsDirectory());
+79          } catch (IOException e) {
+80              System.err.println("Impossibile creare " + dir + ": " + e.getMessage());
+81          }
+82          loadHistory();
+83          loadStats();
+84      }
 ```
 
 Crea (se mancano) la cartella e la sottocartella `questions` — `createDirectories` crea anche le cartelle intermedie — poi carica storico e statistiche. Un errore di creazione viene solo segnalato.
 
-**Riga 69**
+**Riga 86**
 
 ```java
-69      // ------------------------------------------------------------------ storico
+86      // ------------------------------------------------------------------ storico
 ```
 
 Separatore visivo: inizia la parte dedicata allo storico.
 
-**Riga 71**
+**Riga 88**
 
 ```java
-71      public List<ExamResult> getHistory() { return Collections.unmodifiableList(history); }
+88      public List<ExamResult> getHistory() { return Collections.unmodifiableList(history); }
 ```
 
 Lo storico in sola lettura.
 
-**Righe 73–92**
+**Righe 90–109**
 
 ```java
-73      private void loadHistory() {
-74          history.clear();
-75          if (!Files.exists(historyFile)) {
-76              return;
-77          }
-78          try {
-79              for (String line : Files.readAllLines(historyFile, StandardCharsets.UTF_8)) {
-80                  if (line.isBlank() || line.startsWith("#")) {
-81                      continue;
-82                  }
-83                  try {
-84                      history.add(parseHistoryLine(line));
-85                  } catch (RuntimeException e) {
-86                      System.err.println("Riga di storico ignorata: " + line);
-87                  }
-88              }
-89          } catch (IOException e) {
-90              System.err.println("Errore lettura storico: " + e.getMessage());
-91          }
-92      }
+ 90      private void loadHistory() {
+ 91          history.clear();
+ 92          if (!Files.exists(historyFile)) {
+ 93              return;
+ 94          }
+ 95          try {
+ 96              for (String line : Files.readAllLines(historyFile, StandardCharsets.UTF_8)) {
+ 97                  if (line.isBlank() || line.startsWith("#")) {
+ 98                      continue;
+ 99                  }
+100                  try {
+101                      history.add(parseHistoryLine(line));
+102                  } catch (RuntimeException e) {
+103                      System.err.println("Riga di storico ignorata: " + line);
+104                  }
+105              }
+106          } catch (IOException e) {
+107              System.err.println("Errore lettura storico: " + e.getMessage());
+108          }
+109      }
 ```
 
 Svuota lo storico in memoria; se il file non esiste ha finito. Altrimenti legge tutte le righe (UTF-8), salta quelle vuote o di commento e prova a convertire ognuna: una riga rovinata viene ignorata con un messaggio, senza perdere le altre.
 
-**Righe 94–111**
+**Righe 111–128**
 
 ```java
- 94      private static ExamResult parseHistoryLine(String line) {
- 95          String[] p = line.split("\t", -1);
- 96          LocalDateTime date = LocalDateTime.parse(p[0]);
- 97          String title = p[1];
- 98          ExamMode mode = ExamMode.valueOf(p[2]);
- 99          int correct = Integer.parseInt(p[3]);
-100          int total = Integer.parseInt(p[4]);
-101          int duration = Integer.parseInt(p[5]);
-102          Map<Domain, DomainScore> byDomain = new EnumMap<>(Domain.class);
-103          if (p.length > 6 && !p[6].isEmpty()) {
-104              for (String part : p[6].split(";")) {
-105                  String[] kv = part.split("[:/]");
-106                  byDomain.put(Domain.valueOf(kv[0]),
-107                      new DomainScore(Integer.parseInt(kv[1]), Integer.parseInt(kv[2])));
-108              }
-109          }
-110          return new ExamResult(title, mode, date, correct, total, duration, byDomain, null);
-111      }
+111      private static ExamResult parseHistoryLine(String line) {
+112          String[] p = line.split("\t", -1);
+113          LocalDateTime date = LocalDateTime.parse(p[0]);
+114          String title = p[1];
+115          ExamMode mode = ExamMode.valueOf(p[2]);
+116          int correct = Integer.parseInt(p[3]);
+117          int total = Integer.parseInt(p[4]);
+118          int duration = Integer.parseInt(p[5]);
+119          Map<Domain, DomainScore> byDomain = new EnumMap<>(Domain.class);
+120          if (p.length > 6 && !p[6].isEmpty()) {
+121              for (String part : p[6].split(";")) {
+122                  String[] kv = part.split("[:/]");
+123                  byDomain.put(Domain.valueOf(kv[0]),
+124                      new DomainScore(Integer.parseInt(kv[1]), Integer.parseInt(kv[2])));
+125              }
+126          }
+127          return new ExamResult(title, mode, date, correct, total, duration, byDomain, null);
+128      }
 ```
 
 Converte una riga in risultato: divide sui TAB (`-1` mantiene anche i campi vuoti finali), poi converte data, titolo, modalità e numeri. Il settimo campo (`p[6]`), se presente, contiene `DOMINIO:corrette/totale` separati da `;`: lo divide e ricostruisce i `DomainScore`. La sessione è `null` (non viene salvata).
 
-**Righe 113–130**
+**Righe 130–147**
 
 ```java
-113      private static String toHistoryLine(ExamResult r) {
-114          StringBuilder d = new StringBuilder();
-115          for (Map.Entry<Domain, DomainScore> e : r.getByDomain().entrySet()) {
-116              if (d.length() > 0) {
-117                  d.append(';');
-118              }
-119              d.append(e.getKey().name()).append(':').append(e.getValue().getCorrect())
-120               .append('/').append(e.getValue().getTotal());
-121          }
-122          return String.join("\t",
-123              r.getDate().withNano(0).toString(),
-124              r.getTitle().replace('\t', ' '),
-125              r.getMode().name(),
-126              String.valueOf(r.getCorrect()),
-127              String.valueOf(r.getTotal()),
-128              String.valueOf(r.getDurationSeconds()),
-129              d.toString());
-130      }
+130      private static String toHistoryLine(ExamResult r) {
+131          StringBuilder d = new StringBuilder();
+132          for (Map.Entry<Domain, DomainScore> e : r.getByDomain().entrySet()) {
+133              if (d.length() > 0) {
+134                  d.append(';');
+135              }
+136              d.append(e.getKey().name()).append(':').append(e.getValue().getCorrect())
+137               .append('/').append(e.getValue().getTotal());
+138          }
+139          return String.join("\t",
+140              r.getDate().withNano(0).toString(),
+141              r.getTitle().replace('\t', ' '),
+142              r.getMode().name(),
+143              String.valueOf(r.getCorrect()),
+144              String.valueOf(r.getTotal()),
+145              String.valueOf(r.getDurationSeconds()),
+146              d.toString());
+147      }
 ```
 
 Operazione inversa: costruisce il dettaglio per dominio (`;` tra i domini) e unisce i campi con TAB. La data viene salvata senza frazioni di secondo (`withNano(0)`); eventuali TAB nel titolo vengono sostituiti da spazi per non rompere il formato.
 
-**Riga 132**
+**Riga 149**
 
 ```java
-132      /** Registra il risultato nello storico e aggiorna le statistiche delle domande. */
+149      /** Registra il risultato nello storico e aggiorna le statistiche delle domande. */
 ```
 
 `recordResult` ([algoritmo 8](../08-algoritmi.md#8-salvataggio-del-risultato)).
 
-**Righe 133–157**
+**Righe 150–174**
 
 ```java
-133      public void recordResult(ExamResult result) {
-134          history.add(result);
-135          try {
-136              Files.createDirectories(dir);
-137              Files.writeString(historyFile, toHistoryLine(result) + System.lineSeparator(),
-138                  StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-139          } catch (IOException e) {
-140              System.err.println("Errore salvataggio storico: " + e.getMessage());
-141          }
-142          ExamSession s = result.getSession();
-143          if (s != null) {
-144              for (int i = 0; i < s.size(); i++) {
-145                  Question q = s.getQuestion(i);
-146                  if (q.isGenerated()) {
-147                      continue;
-148                  }
-149                  QuestionStat st = stat(q.getId());
-150                  st.record(q.isCorrect(s.getResponse(i)));
-151                  if (s.isMarked(i)) {
-152                      st.setFlagged(true);
-153                  }
-154              }
-155              saveStats();
-156          }
-157      }
+150      public void recordResult(ExamResult result) {
+151          history.add(result);
+152          try {
+153              Files.createDirectories(dir);
+154              Files.writeString(historyFile, toHistoryLine(result) + System.lineSeparator(),
+155                  StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+156          } catch (IOException e) {
+157              System.err.println("Errore salvataggio storico: " + e.getMessage());
+158          }
+159          ExamSession s = result.getSession();
+160          if (s != null) {
+161              for (int i = 0; i < s.size(); i++) {
+162                  Question q = s.getQuestion(i);
+163                  if (q.isGenerated()) {
+164                      continue;
+165                  }
+166                  QuestionStat st = stat(q.getId());
+167                  st.record(q.isCorrect(s.getResponse(i)));
+168                  if (s.isMarked(i)) {
+169                      st.setFlagged(true);
+170                  }
+171              }
+172              saveStats();
+173          }
+174      }
 ```
 
 Aggiunge il risultato in memoria e in coda al file (`CREATE` + `APPEND`); poi, se c'è la sessione, aggiorna la statistica di ogni domanda non generata (esito e marcatura) e salva le statistiche.
 
-**Righe 159–168**
+**Righe 176–185**
 
 ```java
-159      public void clearHistory() {
-160          history.clear();
-161          stats.clear();
-162          try {
-163              Files.deleteIfExists(historyFile);
-164              Files.deleteIfExists(statsFile);
-165          } catch (IOException e) {
-166              System.err.println("Errore cancellazione dati: " + e.getMessage());
-167          }
-168      }
+176      public void clearHistory() {
+177          history.clear();
+178          stats.clear();
+179          try {
+180              Files.deleteIfExists(historyFile);
+181              Files.deleteIfExists(statsFile);
+182          } catch (IOException e) {
+183              System.err.println("Errore cancellazione dati: " + e.getMessage());
+184          }
+185      }
 ```
 
 Svuota storico e statistiche in memoria e cancella i due file (`deleteIfExists` non dà errore se il file non c'è).
 
-**Riga 170**
+**Riga 187**
 
 ```java
-170      // ---------------------------------------------------------- statistiche
+187      // ---------------------------------------------------------- statistiche
 ```
 
 Separatore: inizia la parte dedicata alle statistiche.
 
-**Riga 172**
+**Riga 189**
 
 ```java
-172      public QuestionStat stat(String id) { return stats.computeIfAbsent(id, k -> new QuestionStat()); }
+189      public QuestionStat stat(String id) { return stats.computeIfAbsent(id, k -> new QuestionStat()); }
 ```
 
 Restituisce la statistica dell'ID, creandola vuota se non esiste.
 
-**Riga 174**
+**Riga 191**
 
 ```java
-174      public QuestionStat peekStat(String id) { return stats.get(id); }
+191      public QuestionStat peekStat(String id) { return stats.get(id); }
 ```
 
 Restituisce la statistica o `null`, senza crearla (lettura pura).
 
-**Righe 176–179**
+**Righe 193–196**
 
 ```java
-176      public void setFlagged(String id, boolean flagged) {
-177          stat(id).setFlagged(flagged);
-178          saveStats();
-179      }
+193      public void setFlagged(String id, boolean flagged) {
+194          stat(id).setFlagged(flagged);
+195          saveStats();
+196      }
 ```
 
 Imposta la marcatura e salva subito.
 
-**Righe 181–202**
+**Righe 198–219**
 
 ```java
-181      private void loadStats() {
-182          stats.clear();
-183          if (!Files.exists(statsFile)) {
-184              return;
-185          }
-186          try {
-187              for (String line : Files.readAllLines(statsFile, StandardCharsets.UTF_8)) {
-188                  String[] p = line.split("\t");
-189                  if (p.length < 5 || line.startsWith("#")) {
-190                      continue;
-191                  }
-192                  try {
-193                      stats.put(p[0], new QuestionStat(Integer.parseInt(p[1]), Integer.parseInt(p[2]),
-194                          Boolean.parseBoolean(p[3]), Boolean.parseBoolean(p[4])));
-195                  } catch (NumberFormatException e) {
-196                      System.err.println("Riga di statistiche ignorata: " + line);
-197                  }
-198              }
-199          } catch (IOException e) {
-200              System.err.println("Errore lettura statistiche: " + e.getMessage());
-201          }
-202      }
+198      private void loadStats() {
+199          stats.clear();
+200          if (!Files.exists(statsFile)) {
+201              return;
+202          }
+203          try {
+204              for (String line : Files.readAllLines(statsFile, StandardCharsets.UTF_8)) {
+205                  String[] p = line.split("\t");
+206                  if (p.length < 5 || line.startsWith("#")) {
+207                      continue;
+208                  }
+209                  try {
+210                      stats.put(p[0], new QuestionStat(Integer.parseInt(p[1]), Integer.parseInt(p[2]),
+211                          Boolean.parseBoolean(p[3]), Boolean.parseBoolean(p[4])));
+212                  } catch (NumberFormatException e) {
+213                      System.err.println("Riga di statistiche ignorata: " + line);
+214                  }
+215              }
+216          } catch (IOException e) {
+217              System.err.println("Errore lettura statistiche: " + e.getMessage());
+218          }
+219      }
 ```
 
 Legge `stats.tsv`: per ogni riga con almeno 5 campi e che non è un commento crea una `QuestionStat`; le righe con numeri non validi vengono ignorate con un messaggio.
 
-**Righe 204–221**
+**Righe 221–238**
 
 ```java
-204      private void saveStats() {
-205          try {
-206              Files.createDirectories(dir);
-207              try (BufferedWriter w = Files.newBufferedWriter(statsFile, StandardCharsets.UTF_8)) {
-208                  w.write("# id\tseen\tcorrect\tlastCorrect\tflagged");
-209                  w.newLine();
-210                  for (Map.Entry<String, QuestionStat> e : stats.entrySet()) {
-211                      QuestionStat s = e.getValue();
-212                      w.write(e.getKey() + "\t" + s.getSeen() + "\t" + s.getCorrect() + "\t"
-213                          + s.isLastCorrect() + "\t" + s.isFlagged());
-214                      w.newLine();
-215                  }
-216              }
-217          } catch (IOException e) {
-218              System.err.println("Errore salvataggio statistiche: " + e.getMessage());
-219          }
-220      }
-221  }
+221      private void saveStats() {
+222          try {
+223              Files.createDirectories(dir);
+224              try (BufferedWriter w = Files.newBufferedWriter(statsFile, StandardCharsets.UTF_8)) {
+225                  w.write("# id\tseen\tcorrect\tlastCorrect\tflagged");
+226                  w.newLine();
+227                  for (Map.Entry<String, QuestionStat> e : stats.entrySet()) {
+228                      QuestionStat s = e.getValue();
+229                      w.write(e.getKey() + "\t" + s.getSeen() + "\t" + s.getCorrect() + "\t"
+230                          + s.isLastCorrect() + "\t" + s.isFlagged());
+231                      w.newLine();
+232                  }
+233              }
+234          } catch (IOException e) {
+235              System.err.println("Errore salvataggio statistiche: " + e.getMessage());
+236          }
+237      }
+238  }
 ```
 
 Riscrive l'intero file: intestazione di commento, poi una riga per ogni statistica con i campi separati da TAB. Il `try` interno con risorse chiude il file anche in caso di errore.
@@ -1124,17 +1154,17 @@ Riscrive l'intero file: intestazione di commento, poi una riga per ogni statisti
 
 ## SubnetQuestionGenerator.java
 
-`src/main/java/com/ccnaexamlab/data/SubnetQuestionGenerator.java` — generatore di esercizi di subnetting.
+`src/main/java/com/lordoc/data/SubnetQuestionGenerator.java` — generatore di esercizi di subnetting.
 
 **Righe 1–13**
 
 ```java
- 1  package com.ccnaexamlab.data;
+ 1  package com.lordoc.data;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.Question;
- 5  import com.ccnaexamlab.model.QuestionType;
- 6  import com.ccnaexamlab.util.IpUtils;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.Question;
+ 5  import com.lordoc.model.QuestionType;
+ 6  import com.lordoc.util.IpUtils;
  7  
  8  import java.util.ArrayList;
  9  import java.util.Collections;

@@ -48,15 +48,15 @@ classDiagram
 
 ## `Main` — il punto di partenza
 
-**In parole semplici.** Quando lanci `java -jar ccna-examlab.jar`, Java cerca il metodo
+**In parole semplici.** Quando lanci `java -jar lordoc.jar`, Java cerca il metodo
 `public static void main(String[] args)` della classe indicata nel `.jar`: è la prima istruzione che viene
 eseguita, la "porta d'ingresso".
 
 | Metodo | Cosa fa |
 |---|---|
-| `main(args)` | attiva l'antialiasing del testo; se il primo argomento è `--validate` esegue `validate()` ed esce con il suo codice; altrimenti, sul filo della grafica (`invokeLater`): imposta il look and feel, carica i dati utente, carica la banca domande, crea `AppContext` e `MainFrame`, mostra la finestra e, se ci sono errori di caricamento, un avviso con i primi 15 |
+| `main(args)` | attiva l'antialiasing del testo; se il primo argomento è `--validate` esegue `validate()` ed esce con il suo codice; altrimenti, sul filo della grafica (`invokeLater`): imposta il look and feel, sposta eventualmente la cartella dati della vecchia versione, carica i dati utente, carica la banca domande, crea `AppContext` e `MainFrame`, mostra la finestra e, se ci sono errori di caricamento, un avviso con i primi 15 |
 | `validate()` | carica solo le domande incluse e stampa sulla console il totale, il conteggio per dominio e gli errori. Restituisce 0 se va tutto bene, 1 se ci sono errori: così uno script (es. la CI di GitHub) capisce se fallire |
-| `setLookAndFeel()` | usa l'aspetto grafico del sistema operativo; con `-Dccna.laf=Nimbus` (o altro nome) se ne può forzare uno diverso |
+| `setLookAndFeel()` | usa l'aspetto grafico del sistema operativo; con `-Dlordoc.laf=Nimbus` (o altro nome) se ne può forzare uno diverso |
 
 **Codice di uscita.** `System.exit(0)` = "tutto ok", qualunque altro numero = "errore". È una
 convenzione di tutti i programmi a riga di comando.

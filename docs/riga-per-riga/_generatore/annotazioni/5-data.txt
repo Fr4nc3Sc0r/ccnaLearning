@@ -1,14 +1,14 @@
 # TITLE: Riga per riga — pacchetto `data`
 # INTRO: Il pacchetto `data` legge le domande dai file (`QuestionParser`, `QuestionBank`), ne genera di nuove (`SubnetQuestionGenerator`) e conserva i dati dell'utente (`UserDataStore`, `QuestionStat`). Descrizione generale: [04 - data](../04-classi-data.md).
 @@ data/QuestionParseException.java | errore di formato in un file di domande.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e commento.
 >> public class QuestionParseException extends Exception {
 Un nuovo tipo di errore: `extends Exception` significa "è un tipo di eccezione". `serialVersionUID` è un numero di versione richiesto da Java per gli oggetti serializzabili (le eccezioni lo sono); qui non ha effetti pratici.
 >> public QuestionParseException(String message) {
 Il costruttore riceve il messaggio d'errore e lo passa alla classe madre con `super(...)`.
 @@ data/QuestionParser.java | lettura del formato a blocchi `[Q]...[/Q]`.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e import: le classi del modello, `Text` per ripulire i blocchi e le classi Java per leggere testo ed espressioni regolari (`Pattern`, `Matcher`).
 >> /**
 Lungo commento con un esempio del formato. Il tag `<pre>` serve a mantenerlo impaginato nella documentazione Javadoc.
@@ -71,7 +71,7 @@ Testo di una chiave così com'è (o vuoto se la chiave manca).
 >> private static String value(Map<String, StringBuilder> f, String key) {
 Come `raw`, ma senza spazi agli estremi: usato per i campi su una riga.
 @@ data/QuestionBank.java | archivio di tutte le domande caricate.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e import.
 >> /**
 Commento della classe.
@@ -102,7 +102,7 @@ Nuova lista con le sole domande del dominio indicato.
 >> public Map<Domain, Integer> countByDomain() {
 Conteggio per dominio: prima mette 0 per tutti i domini (così compaiono anche quelli vuoti), poi per ogni domanda aggiunge 1 al suo dominio (`merge(..., 1, Integer::sum)` = "se c'è già somma 1").
 @@ data/QuestionStat.java | statistiche persistenti di una domanda.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e commento.
 >> public final class QuestionStat {
 I quattro dati: viste, corrette, esito dell'ultima volta, marcata.
@@ -113,7 +113,7 @@ Registra un nuovo tentativo: +1 viste, +1 corrette se giusta, ricorda l'ultimo e
 >> public int getSeen() { return seen; }
 Getter; `getWrong` calcola le risposte sbagliate come differenza. Getter e setter della marcatura.
 @@ data/UserDataStore.java | storico e statistiche su file.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e import: modello, file (`java.nio.file`), date e collezioni.
 >> /**
 Commento con l'elenco dei file gestiti.
@@ -124,7 +124,11 @@ Percorsi della cartella e dei due file, lo storico in memoria e la mappa ID → 
 >> public UserDataStore(Path dir) {
 Costruttore: calcola i percorsi dei file dentro la cartella (`resolve` = "cartella + nome file"). Non legge ancora nulla.
 >> public static Path defaultDirectory() {
-Cartella predefinita: se è stata impostata la proprietà `ccna.examlab.home` usa quella, altrimenti `.ccna-examlab` nella cartella personale (`user.home`).
+Cartella predefinita: se è stata impostata la proprietà `lordoc.home` usa quella, altrimenti `.lordoc` nella cartella personale (`user.home`).
+>> /**
+Commento del metodo di migrazione.
+>> public static void migrateLegacyDirectory(Path target) {
+Se esiste la cartella della versione precedente (`~/.ccna-examlab`, quando il programma si chiamava "CCNA ExamLab") ed è una cartella, e la nuova cartella non esiste ancora, la rinomina (`Files.move`) nella nuova: storico, statistiche e domande personali vengono conservati. Se lo spostamento fallisce lo segnala senza bloccare il programma. Se la nuova cartella esiste già non tocca nulla.
 >> public Path getDirectory() { return dir; }
 Getter della cartella dati e della sottocartella delle domande personali.
 >> public void load() {
@@ -158,7 +162,7 @@ Legge `stats.tsv`: per ogni riga con almeno 5 campi e che non è un commento cre
 >> private void saveStats() {
 Riscrive l'intero file: intestazione di commento, poi una riga per ogni statistica con i campi separati da TAB. Il `try` interno con risorse chiude il file anche in caso di errore.
 @@ data/SubnetQuestionGenerator.java | generatore di esercizi di subnetting.
->> package com.ccnaexamlab.data;
+>> package com.lordoc.data;
 Pacchetto e import.
 >> /**
 Commento della classe.

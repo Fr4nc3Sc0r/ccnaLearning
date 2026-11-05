@@ -1,7 +1,7 @@
 # TITLE: Riga per riga — pacchetto `ui` (2/3): le schede del menu principale
 # INTRO: Questa parte copre le quattro schede della home (`ExamsPanel`, `HistoryPanel`, `ReferencePanel`, `SubnetCalculatorPanel`) e la finestra `CustomExamDialog`. Descrizione generale: [06 - ui](../06-classi-ui.md).
 @@ ui/ExamsPanel.java | la scheda "Esami".
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import: servizi, motore d'esame, modello e componenti Swing.
 >> /** Scheda "Esami": esami predefiniti e modalità alternative. */
 Inizio della classe (`extends JPanel`).
@@ -52,7 +52,7 @@ Modello della tabella dei domini: una riga per dominio, colonne e nomi come sopr
 >> public Object getValueAt(int r, int c) {
 Per il dominio della riga scorre le sue domande e somma: quante sono state viste almeno una volta, quante risposte totali e quante corrette. Restituisce nome, peso, numero di domande, viste e accuratezza (o trattino se mai risposto).
 @@ ui/CustomExamDialog.java | la finestra "Esame personalizzato".
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Finestra di configurazione di un esame personalizzato. */
 `extends JDialog`: finestra secondaria.
@@ -83,7 +83,7 @@ Raccoglie i domini selezionati; se non c'è né un dominio né del subnetting av
 >> /** null se l'utente ha annullato. */
 Restituisce la configurazione a chi ha aperto la finestra.
 @@ ui/HistoryPanel.java | la scheda "Storico e progressi".
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Scheda "Storico e progressi": elenco esami, grafico punteggi, aggregato per dominio. */
 Inizio della classe; `FMT` è il formato di data `05/11/2026 12:08`.
@@ -110,7 +110,7 @@ Modello della tabella: colonne e nomi, numero di righe = numero di esami.
 >> public Object getValueAt(int r, int c) {
 Legge lo storico al contrario (`h.size() - 1 - r`) per mostrare i più recenti in alto, e restituisce data formattata, titolo, modalità, corrette/totale, punteggio, esito, durata.
 @@ ui/ReferencePanel.java | la scheda "Cheat sheet".
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import (lista, visualizzatore HTML, lettura delle risorse).
 >> /** Scheda "Cheat sheet": schede di ripasso in HTML caricate dalle risorse. */
 Inizio della classe.
@@ -129,7 +129,7 @@ Legge `/reference/index.txt`: per ogni riga valida divide su `|` il nome del fil
 >> private void show(String file) {
 Apre la pagina come risorsa e la carica nel visualizzatore (`lines().collect(joining)` unisce tutte le righe); se manca o non si legge, mostra un messaggio. Infine riporta lo scorrimento in cima (`setCaretPosition(0)`).
 @@ ui/SubnetCalculatorPanel.java | la scheda "Calcolatore subnet".
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Calcolatore IPv4: rete, broadcast, range host, maschera, wildcard, binario. */
 Inizio della classe.

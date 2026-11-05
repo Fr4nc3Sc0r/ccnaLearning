@@ -8,24 +8,24 @@ Questa parte copre le quattro schede della home (`ExamsPanel`, `HistoryPanel`, `
 
 ## ExamsPanel.java
 
-`src/main/java/com/ccnaexamlab/ui/ExamsPanel.java` — la scheda "Esami".
+`src/main/java/com/lordoc/ui/ExamsPanel.java` — la scheda "Esami".
 
 **Righe 1–31**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.app.AppContext;
- 4  import com.ccnaexamlab.data.QuestionStat;
- 5  import com.ccnaexamlab.engine.ExamConfig;
- 6  import com.ccnaexamlab.engine.ExamFactory;
- 7  import com.ccnaexamlab.engine.PresetExam;
- 8  import com.ccnaexamlab.engine.QuestionFilter;
- 9  import com.ccnaexamlab.model.Domain;
-10  import com.ccnaexamlab.model.ExamMode;
-11  import com.ccnaexamlab.model.ExamResult;
-12  import com.ccnaexamlab.model.ExamSession;
-13  import com.ccnaexamlab.model.Question;
+ 3  import com.lordoc.app.AppContext;
+ 4  import com.lordoc.data.QuestionStat;
+ 5  import com.lordoc.engine.ExamConfig;
+ 6  import com.lordoc.engine.ExamFactory;
+ 7  import com.lordoc.engine.PresetExam;
+ 8  import com.lordoc.engine.QuestionFilter;
+ 9  import com.lordoc.model.Domain;
+10  import com.lordoc.model.ExamMode;
+11  import com.lordoc.model.ExamResult;
+12  import com.lordoc.model.ExamSession;
+13  import com.lordoc.model.Question;
 14  
 15  import javax.swing.BorderFactory;
 16  import javax.swing.JButton;
@@ -448,18 +448,18 @@ Per il dominio della riga scorre le sue domande e somma: quante sono state viste
 
 ## CustomExamDialog.java
 
-`src/main/java/com/ccnaexamlab/ui/CustomExamDialog.java` — la finestra "Esame personalizzato".
+`src/main/java/com/lordoc/ui/CustomExamDialog.java` — la finestra "Esame personalizzato".
 
 **Righe 1–28**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.engine.ExamConfig;
- 4  import com.ccnaexamlab.engine.ExamFactory;
- 5  import com.ccnaexamlab.engine.QuestionFilter;
- 6  import com.ccnaexamlab.model.Domain;
- 7  import com.ccnaexamlab.model.ExamMode;
+ 3  import com.lordoc.engine.ExamConfig;
+ 4  import com.lordoc.engine.ExamFactory;
+ 5  import com.lordoc.engine.QuestionFilter;
+ 6  import com.lordoc.model.Domain;
+ 7  import com.lordoc.model.ExamMode;
  8  
  9  import javax.swing.JCheckBox;
 10  import javax.swing.JComboBox;
@@ -697,18 +697,18 @@ Restituisce la configurazione a chi ha aperto la finestra.
 
 ## HistoryPanel.java
 
-`src/main/java/com/ccnaexamlab/ui/HistoryPanel.java` — la scheda "Storico e progressi".
+`src/main/java/com/lordoc/ui/HistoryPanel.java` — la scheda "Storico e progressi".
 
 **Righe 1–23**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.app.AppContext;
- 4  import com.ccnaexamlab.model.Domain;
- 5  import com.ccnaexamlab.model.DomainScore;
- 6  import com.ccnaexamlab.model.ExamResult;
- 7  import com.ccnaexamlab.util.Text;
+ 3  import com.lordoc.app.AppContext;
+ 4  import com.lordoc.model.Domain;
+ 5  import com.lordoc.model.DomainScore;
+ 6  import com.lordoc.model.ExamResult;
+ 7  import com.lordoc.util.Text;
  8  
  9  import javax.swing.JButton;
 10  import javax.swing.JOptionPane;
@@ -920,12 +920,12 @@ Legge lo storico al contrario (`h.size() - 1 - r`) per mostrare i più recenti i
 
 ## ReferencePanel.java
 
-`src/main/java/com/ccnaexamlab/ui/ReferencePanel.java` — la scheda "Cheat sheet".
+`src/main/java/com/lordoc/ui/ReferencePanel.java` — la scheda "Cheat sheet".
 
 **Righe 1–21**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
  3  import javax.swing.DefaultListModel;
  4  import javax.swing.JEditorPane;
@@ -1080,14 +1080,14 @@ Apre la pagina come risorsa e la carica nel visualizzatore (`lines().collect(joi
 
 ## SubnetCalculatorPanel.java
 
-`src/main/java/com/ccnaexamlab/ui/SubnetCalculatorPanel.java` — la scheda "Calcolatore subnet".
+`src/main/java/com/lordoc/ui/SubnetCalculatorPanel.java` — la scheda "Calcolatore subnet".
 
 **Righe 1–12**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.util.IpUtils;
+ 3  import com.lordoc.util.IpUtils;
  4  
  5  import javax.swing.JLabel;
  6  import javax.swing.JPanel;

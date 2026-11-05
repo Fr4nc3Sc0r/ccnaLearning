@@ -8,12 +8,12 @@ Il pacchetto `model` definisce i concetti del programma: dominio, tipo di domand
 
 ## Domain.java
 
-`src/main/java/com/ccnaexamlab/model/Domain.java` — i sei domini del blueprint con codice, nome e peso.
+`src/main/java/com/lordoc/model/Domain.java` — i sei domini del blueprint con codice, nome e peso.
 
 **Riga 1**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 ```
 
 Pacchetto `model`.
@@ -136,12 +136,12 @@ Se nessun dominio corrisponde **lancia un'eccezione** (segnala l'errore): il par
 
 ## QuestionType.java
 
-`src/main/java/com/ccnaexamlab/model/QuestionType.java` — i quattro tipi di domanda.
+`src/main/java/com/lordoc/model/QuestionType.java` — i quattro tipi di domanda.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  /** Tipologie di domanda supportate (come all'esame reale). */
 ```
@@ -181,12 +181,12 @@ Il campo con l'etichetta, il costruttore che la salva e il getter che la restitu
 
 ## ExamMode.java
 
-`src/main/java/com/ccnaexamlab/model/ExamMode.java` — le due modalità d'esame.
+`src/main/java/com/lordoc/model/ExamMode.java` — le due modalità d'esame.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  /** Modalità d'esame. */
 ```
@@ -225,12 +225,12 @@ Campo, costruttore e getter dell'etichetta; `toString` restituisce l'etichetta c
 
 ## Response.java
 
-`src/main/java/com/ccnaexamlab/model/Response.java` — la risposta dell'utente a una domanda.
+`src/main/java/com/lordoc/model/Response.java` — la risposta dell'utente a una domanda.
 
 **Righe 1–7**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  import java.util.Collections;
 4  import java.util.HashMap;
@@ -348,12 +348,12 @@ Quanti elementi sono stati abbinati.
 
 ## DomainScore.java
 
-`src/main/java/com/ccnaexamlab/model/DomainScore.java` — contatore corrette/totali per un dominio.
+`src/main/java/com/lordoc/model/DomainScore.java` — contatore corrette/totali per un dominio.
 
 **Righe 1–3**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  /** Risultato parziale per un dominio. */
 ```
@@ -429,12 +429,12 @@ Percentuale; se il totale è 0 restituisce 0 per evitare una divisione per zero.
 
 ## Question.java
 
-`src/main/java/com/ccnaexamlab/model/Question.java` — la domanda d'esame, immutabile, con correzione e mescolamento.
+`src/main/java/com/lordoc/model/Question.java` — la domanda d'esame, immutabile, con correzione e mescolamento.
 
 **Righe 1–10**
 
 ```java
- 1  package com.ccnaexamlab.model;
+ 1  package com.lordoc.model;
  2  
  3  import java.util.ArrayList;
  4  import java.util.Collections;
@@ -960,12 +960,12 @@ Chiusura della classe interna `Builder` e della classe `Question`.
 
 ## ExamSession.java
 
-`src/main/java/com/ccnaexamlab/model/ExamSession.java` — l'esame in corso.
+`src/main/java/com/lordoc/model/ExamSession.java` — l'esame in corso.
 
 **Righe 1–5**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  import java.util.List;
 4  
@@ -1143,12 +1143,12 @@ Conta le domande marcate (`for (boolean m : marked)` = "per ogni valore dell'arr
 
 ## ExamResult.java
 
-`src/main/java/com/ccnaexamlab/model/ExamResult.java` — il risultato di un esame concluso.
+`src/main/java/com/lordoc/model/ExamResult.java` — il risultato di un esame concluso.
 
 **Righe 1–7**
 
 ```java
-1  package com.ccnaexamlab.model;
+1  package com.lordoc.model;
 2  
 3  import java.time.LocalDateTime;
 4  import java.util.EnumMap;

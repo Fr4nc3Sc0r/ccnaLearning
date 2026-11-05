@@ -1,7 +1,7 @@
 # TITLE: Riga per riga — pacchetto `util`
 # INTRO: Funzioni di utilità senza stato: calcoli sugli indirizzi IPv4 (`IpUtils`) e trattamento dei testi (`Text`). Descrizione generale: [07 - app e util](../07-classi-app-util.md).
 @@ util/IpUtils.java | calcoli IPv4 con operazioni sui bit.
->> package com.ccnaexamlab.util;
+>> package com.lordoc.util;
 Pacchetto e commento.
 >> public final class IpUtils {
 Classe di sole funzioni statiche; il costruttore privato impedisce di crearne oggetti.
@@ -34,7 +34,7 @@ Broadcast: rete OR wildcard (i bit di host diventano 1).
 >> private static void checkPrefix(int prefix) {
 Controllo comune: un prefisso fuori da 0-32 genera un errore con un messaggio chiaro.
 @@ util/Text.java | utilità per i testi.
->> package com.ccnaexamlab.util;
+>> package com.lordoc.util;
 Pacchetto, commento e costruttore privato (solo funzioni statiche).
 >> public static String escapeHtml(String s) {
 Sostituisce i caratteri speciali dell'HTML (`< > & "`) con i loro codici, così un testo come `<vlan>` viene mostrato e non interpretato. Usa uno `StringBuilder` leggermente più grande del testo e uno `switch` carattere per carattere.

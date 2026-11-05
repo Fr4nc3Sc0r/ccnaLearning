@@ -1,7 +1,7 @@
 # TITLE: Riga per riga — pacchetto `model`
 # INTRO: Il pacchetto `model` definisce i concetti del programma: dominio, tipo di domanda, modalità, domanda, risposta, esame in corso, punteggi e risultato. Descrizione generale: [03 - model](../03-classi-model.md).
 @@ model/Domain.java | i sei domini del blueprint con codice, nome e peso.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto `model`.
 >> /**
 Commento che descrive l'enum.
@@ -26,21 +26,21 @@ Se nessun dominio corrisponde **lancia un'eccezione** (segnala l'errore): il par
 >> @Override
 `toString` è il metodo usato da Java quando un oggetto deve diventare testo (es. in un menu a tendina): qui restituisce l'etichetta. `@Override` indica che ridefinisce un metodo ereditato.
 @@ model/QuestionType.java | i quattro tipi di domanda.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto e commento della classe.
 >> public enum QuestionType {
 Enum con i quattro tipi; ognuno ha un commento e un'etichetta in italiano tra parentesi.
 >> private final String label;
 Il campo con l'etichetta, il costruttore che la salva e il getter che la restituisce.
 @@ model/ExamMode.java | le due modalità d'esame.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto e commento.
 >> public enum ExamMode {
 I due valori, Simulazione e Studio, ciascuno con la sua etichetta.
 >> private final String label;
 Campo, costruttore e getter dell'etichetta; `toString` restituisce l'etichetta così i menu a tendina mostrano "Studio" invece di "STUDY".
 @@ model/Response.java | la risposta dell'utente a una domanda.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto e import delle collezioni usate.
 >> /** La risposta data dall'utente a una singola domanda. */
 Inizio della classe.
@@ -65,7 +65,7 @@ Memorizza un abbinamento; se la scelta è vuota (l'utente ha rimesso il menu sul
 >> public int dragAnswerCount() { return dragAnswers.size(); }
 Quanti elementi sono stati abbinati.
 @@ model/DomainScore.java | contatore corrette/totali per un dominio.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto e commento.
 >> public final class DomainScore {
 Due contatori interi, inizialmente 0.
@@ -80,7 +80,7 @@ Getter.
 >> public double getPercent() { return total == 0 ? 0 : 100.0 * correct / total; }
 Percentuale; se il totale è 0 restituisce 0 per evitare una divisione per zero. `100.0` (con il punto) forza un calcolo con la virgola.
 @@ model/Question.java | la domanda d'esame, immutabile, con correzione e mescolamento.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto e import delle collezioni e utilità usate.
 >> /** Una domanda d'esame, immutabile. Si costruisce con {@link Builder}. */
 Inizio della classe `Question`.
@@ -149,7 +149,7 @@ Tutto in regola: crea la domanda passando sé stesso al costruttore privato.
 >> }
 Chiusura della classe interna `Builder` e della classe `Question`.
 @@ model/ExamSession.java | l'esame in corso.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto, import e commento.
 >> public final class ExamSession {
 Inizio della classe.
@@ -178,7 +178,7 @@ Conta le domande con risposta completa scorrendole tutte.
 >> public int countMarked() {
 Conta le domande marcate (`for (boolean m : marked)` = "per ogni valore dell'array").
 @@ model/ExamResult.java | il risultato di un esame concluso.
->> package com.ccnaexamlab.model;
+>> package com.lordoc.model;
 Pacchetto, import (data/ora e mappe) e commento.
 >> public final class ExamResult {
 Inizio della classe.

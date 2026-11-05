@@ -20,7 +20,7 @@ un compromesso: abbastanza preciso per il computer, abbastanza leggibile per le 
 ```mermaid
 flowchart LR
     A["File .java<br/>(testo scritto da noi)"] -->|"javac<br/>(compilatore)"| B["File .class<br/>(bytecode)"]
-    B -->|"impacchettati"| C["ccna-examlab.jar"]
+    B -->|"impacchettati"| C["lordoc.jar"]
     C -->|"java -jar"| D["JVM<br/>(Java Virtual Machine)"]
     D --> E["Il programma<br/>gira sul tuo PC"]
 ```
@@ -149,7 +149,7 @@ un punteggio". Le parentesi angolari dicono *che cosa* c'è dentro la collezione
 ## 4. Pacchetti e import
 
 I file Java sono organizzati in **pacchetti** (*package*), cioè cartelle con un nome "a dominio
-rovesciato": `com.ccnaexamlab.model` corrisponde alla cartella `src/main/java/com/ccnaexamlab/model/`.
+rovesciato": `com.lordoc.model` corrisponde alla cartella `src/main/java/com/lordoc/model/`.
 
 All'inizio di ogni file le righe `import ...` dicono quali classi di altri pacchetti vengono usate, come
 l'elenco degli "attrezzi presi in prestito" da altri cassetti.
@@ -206,7 +206,7 @@ millisecondi (1 secondo) per aggiornare il cronometro.
 - **Risorse**: file non-Java inclusi nel `.jar` (le domande `.txt` e le pagine `.html` del cheat sheet).
   Si leggono con `getResourceAsStream("/percorso")`.
 - **File dell'utente**: storico e statistiche vengono scritti nella cartella personale
-  (`~/.ccna-examlab/`) usando `java.nio.file.Files`.
+  (`~/.lordoc/`) usando `java.nio.file.Files`.
 - **TSV** (*Tab Separated Values*): file di testo in cui ogni riga è un record e i campi sono separati dal
   tasto TAB. Si apre anche con Excel.
 - **UTF-8**: la codifica dei caratteri usata ovunque, così le lettere accentate (à, è…) non si rovinano.

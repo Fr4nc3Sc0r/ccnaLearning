@@ -12,8 +12,8 @@
         {
             "label": "Avvia JAR",
             "type": "shell",
-            "command": "java -jar dist/ccna-examlab.jar",
-            "windows": { "command": "java -jar dist\\ccna-examlab.jar" },
+            "command": "java -jar dist/lordoc.jar",
+            "windows": { "command": "java -jar dist\\lordoc.jar" },
             "dependsOn": "Build JAR (solo JDK)",
             "problemMatcher": []
         }

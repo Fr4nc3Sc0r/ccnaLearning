@@ -1,4 +1,4 @@
-# CCNA ExamLab
+# Lordoc
 
 Simulatore d'esame **desktop** per la preparazione alla certificazione **Cisco CCNA 200-301**, scritto in
 **Java + Swing**. Usa solo la libreria standard del JDK, senza dipendenze esterne.
@@ -60,9 +60,9 @@ A queste si aggiungono le domande di subnetting generate senza limiti.
 **Senza Maven** (solo JDK):
 
 ```bash
-./build.sh            # Linux / macOS  → dist/ccna-examlab.jar
+./build.sh            # Linux / macOS  → dist/lordoc.jar
 build.bat             # Windows
-java -jar dist/ccna-examlab.jar
+java -jar dist/lordoc.jar
 ```
 
 Oppure `./run.sh` / `run.bat`, che compila se serve e poi avvia.
@@ -71,7 +71,7 @@ Oppure `./run.sh` / `run.bat`, che compila se serve e poi avvia.
 
 ```bash
 mvn package
-java -jar target/ccna-examlab.jar
+java -jar target/lordoc.jar
 ```
 
 **Con Visual Studio Code:**
@@ -80,19 +80,19 @@ java -jar target/ccna-examlab.jar
    **Extension Pack for Java** (VS Code la propone automaticamente all'apertura della cartella).
 2. *File → Apri cartella…* e seleziona la cartella del progetto (quella che contiene `pom.xml`).
 3. Attendi che in basso compaia "Java: Ready" (il progetto Maven viene importato da solo, non serve installare Maven).
-4. Premi **F5** (oppure *Esegui e debug* → "Avvia CCNA ExamLab").
-5. Per creare il JAR: **Ctrl+Shift+B** (task "Build JAR (solo JDK)") → `dist/ccna-examlab.jar`.
+4. Premi **F5** (oppure *Esegui e debug* → "Avvia Lordoc").
+5. Per creare il JAR: **Ctrl+Shift+B** (task "Build JAR (solo JDK)") → `dist/lordoc.jar`.
 
 **Validare i file delle domande** (utile prima di un commit):
 
 ```bash
-java -jar dist/ccna-examlab.jar --validate
+java -jar dist/lordoc.jar --validate
 ```
 
 Opzioni JVM facoltative:
 
-- `-Dccna.laf=Nimbus` per forzare un look and feel (default: quello del sistema)
-- `-Dccna.examlab.home=/percorso` per cambiare la cartella dei dati utente
+- `-Dlordoc.laf=Nimbus` per forzare un look and feel (default: quello del sistema)
+- `-Dlordoc.home=/percorso` per cambiare la cartella dei dati utente
 
 ## Documentazione
 
@@ -116,7 +116,7 @@ ccnaLearning/
 ├── .github/workflows/build.yml  # CI: compila e valida le domande
 ├── docs/                        # documentazione completa (vedi docs/README.md)
 └── src/main/
-    ├── java/com/ccnaexamlab/
+    ├── java/com/lordoc/
     │   ├── app/        Main (avvio, --validate), AppContext (servizi condivisi)
     │   ├── model/      Domain, Question, Response, ExamSession, ExamResult, ...
     │   ├── data/       QuestionParser, QuestionBank, SubnetQuestionGenerator, UserDataStore
@@ -130,7 +130,7 @@ ccnaLearning/
 
 ## Dati utente
 
-Storico e statistiche vengono salvati in `~/.ccna-examlab/`:
+Storico e statistiche vengono salvati in `~/.lordoc/`:
 
 - `history.tsv`: esami svolti (data, esame, modalità, punteggio, dettaglio per dominio)
 - `stats.tsv`: per ogni domanda, quante volte è stata vista, risposte corrette, ultimo esito e marcatura

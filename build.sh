@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Compila il progetto e crea dist/ccna-examlab.jar usando solo il JDK (nessun Maven richiesto).
+# Compila il progetto e crea dist/lordoc.jar usando solo il JDK (nessun Maven richiesto).
 set -e
 cd "$(dirname "$0")"
 
@@ -15,9 +15,9 @@ echo "Copia risorse..."
 cp -R src/main/resources/. "$OUT"/
 
 echo "Creazione JAR..."
-jar --create --file dist/ccna-examlab.jar --main-class com.ccnaexamlab.app.Main -C "$OUT" .
+jar --create --file dist/lordoc.jar --main-class com.lordoc.app.Main -C "$OUT" .
 
 echo "Verifica banca domande..."
-java -jar dist/ccna-examlab.jar --validate
+java -jar dist/lordoc.jar --validate
 
-echo "Fatto: dist/ccna-examlab.jar  (avvio: java -jar dist/ccna-examlab.jar)"
+echo "Fatto: dist/lordoc.jar  (avvio: java -jar dist/lordoc.jar)"

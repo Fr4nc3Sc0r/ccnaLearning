@@ -2,7 +2,7 @@
 
 ## 1. L'idea in una frase
 
-CCNA ExamLab **legge un archivio di domande da file di testo**, **costruisce un esame** scegliendo le
+Lordoc **legge un archivio di domande da file di testo**, **costruisce un esame** scegliendo le
 domande con regole precise, **mostra le domande** una alla volta in una finestra, **corregge** le risposte,
 **salva** il risultato e **mostra un report** per capire dove migliorare.
 
@@ -43,7 +43,7 @@ flowchart TD
 ## 3. Struttura dei file
 
 ```
-src/main/java/com/ccnaexamlab/
+src/main/java/com/lordoc/
 ├── app/      Main.java (punto di partenza), AppContext.java (servizi condivisi)
 ├── model/    Domain, QuestionType, ExamMode, Question, Response, ExamSession, DomainScore, ExamResult
 ├── data/     QuestionParser, QuestionParseException, QuestionBank, QuestionStat, UserDataStore,
@@ -76,9 +76,10 @@ sequenceDiagram
     participant C as AppContext
     participant F as MainFrame
 
-    U->>M: java -jar ccna-examlab.jar
+    U->>M: java -jar lordoc.jar
     M->>M: imposta look and feel
-    M->>S: new UserDataStore(~/.ccna-examlab)
+    M->>S: migrateLegacyDirectory (sposta ~/.ccna-examlab se esiste)
+    M->>S: new UserDataStore(~/.lordoc)
     M->>S: load()
     S-->>M: storico + statistiche caricati
     M->>B: QuestionBank.load(cartella domande utente)
@@ -96,7 +97,7 @@ sequenceDiagram
     end
 ```
 
-Esiste anche una modalità senza finestra: `java -jar ccna-examlab.jar --validate` legge solo le domande
+Esiste anche una modalità senza finestra: `java -jar lordoc.jar --validate` legge solo le domande
 e stampa quante sono e gli eventuali errori (utile prima di pubblicare modifiche).
 
 ## 5. Il ciclo di vita di un esame
@@ -137,13 +138,15 @@ Passo per passo:
 | Dato | Dove | Formato | Chi lo scrive |
 |---|---|---|---|
 | Domande incluse | dentro il `.jar` (`/questions/*.txt`) | testo a blocchi `[Q]...[/Q]` | gli autori del progetto |
-| Domande personali | `~/.ccna-examlab/questions/*.txt` | stesso formato | l'utente |
+| Domande personali | `~/.lordoc/questions/*.txt` | stesso formato | l'utente |
 | Cheat sheet | dentro il `.jar` (`/reference/*.html`) | HTML | gli autori |
-| Storico esami | `~/.ccna-examlab/history.tsv` | una riga per esame, campi separati da TAB | `UserDataStore.recordResult` |
-| Statistiche domande | `~/.ccna-examlab/stats.tsv` | una riga per domanda | `UserDataStore.saveStats` |
+| Storico esami | `~/.lordoc/history.tsv` | una riga per esame, campi separati da TAB | `UserDataStore.recordResult` |
+| Statistiche domande | `~/.lordoc/stats.tsv` | una riga per domanda | `UserDataStore.saveStats` |
 
 `~` è la cartella personale dell'utente (es. `C:\Users\Mario` su Windows, `/home/mario` su Linux).
-La posizione si può cambiare avviando con `-Dccna.examlab.home=/altro/percorso`.
+La posizione si può cambiare avviando con `-Dlordoc.home=/altro/percorso`. Chi aveva usato la versione
+precedente (chiamata "CCNA ExamLab", cartella `~/.ccna-examlab`) non perde nulla: al primo avvio la vecchia
+cartella viene rinominata automaticamente in `~/.lordoc`.
 
 ## 7. Le schermate e le classi che le disegnano
 

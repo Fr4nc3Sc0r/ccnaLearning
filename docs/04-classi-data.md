@@ -49,6 +49,7 @@ classDiagram
         -history : List~ExamResult~
         -stats : Map~String,QuestionStat~
         +defaultDirectory()$ Path
+        +migrateLegacyDirectory(Path)$
         +load()
         +getHistory() List~ExamResult~
         +recordResult(ExamResult)
@@ -144,7 +145,7 @@ domande come "dammi tutte le domande del dominio 3" o "dammi la domanda IPC-001"
 1. **Domande incluse nel programma**: legge `/questions/index.txt` (dentro il `.jar`), che elenca i file
    da caricare, e li passa uno a uno al parser. Serve un indice perché dentro un `.jar` non è semplice
    "elencare i file di una cartella".
-2. **Domande dell'utente**: tutti i file `*.txt` in `~/.ccna-examlab/questions/`.
+2. **Domande dell'utente**: tutti i file `*.txt` in `~/.lordoc/questions/`.
 
 **ID duplicati.** Se due domande hanno lo stesso ID, tiene la prima e segnala l'altra come errore.
 
@@ -178,7 +179,7 @@ Struttura interna: una `LinkedHashMap` che associa ID → domanda e **ricorda l'
 ## `UserDataStore` — il magazzino dei dati personali
 
 **In parole semplici.** Ricorda **tutto quello che hai fatto**: gli esami svolti e come sei andato su ogni
-domanda. Lavora sulla cartella `~/.ccna-examlab/`, con due file di testo semplici (apribili anche con
+domanda. Lavora sulla cartella `~/.lordoc/`, con due file di testo semplici (apribili anche con
 Excel o il Blocco note).
 
 **Formato di `history.tsv`** (una riga per esame, campi separati da TAB):
@@ -198,7 +199,8 @@ NF-001  3     2        true         false
 | Metodo | Cosa fa |
 |---|---|
 | costruttore | memorizza i percorsi della cartella e dei due file (non legge ancora nulla) |
-| `defaultDirectory()` | `~/.ccna-examlab`, oppure il percorso indicato con `-Dccna.examlab.home=...` |
+| `migrateLegacyDirectory(target)` (statico) | se esiste la cartella `~/.ccna-examlab` della versione precedente (quando il programma si chiamava "CCNA ExamLab") e quella nuova non esiste, la rinomina: i dati non vanno persi |
+| `defaultDirectory()` | `~/.lordoc`, oppure il percorso indicato con `-Dlordoc.home=...` |
 | `load()` | crea la cartella (e `questions/`) se non esiste, poi legge storico e statistiche. Le righe illeggibili vengono saltate con un messaggio sulla console, senza bloccare il programma |
 | `recordResult(result)` | aggiunge il risultato allo storico in memoria **e** in coda al file (`APPEND`, senza riscriverlo); poi per ogni domanda non generata aggiorna `QuestionStat` (vista, giusta/sbagliata, marcata) e riscrive `stats.tsv` ([flowchart](08-algoritmi.md#8-salvataggio-del-risultato)) |
 | `clearHistory()` | svuota tutto e cancella i due file (pulsante "Azzera storico") |

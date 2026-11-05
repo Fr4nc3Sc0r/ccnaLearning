@@ -3,17 +3,17 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Avvia CCNA ExamLab",
+            "name": "Avvia Lordoc",
             "request": "launch",
-            "mainClass": "com.ccnaexamlab.app.Main",
-            "projectName": "ccna-examlab"
+            "mainClass": "com.lordoc.app.Main",
+            "projectName": "lordoc"
         },
         {
             "type": "java",
             "name": "Valida banca domande",
             "request": "launch",
-            "mainClass": "com.ccnaexamlab.app.Main",
-            "projectName": "ccna-examlab",
+            "mainClass": "com.lordoc.app.Main",
+            "projectName": "lordoc",
             "args": "--validate",
             "console": "integratedTerminal"
         }

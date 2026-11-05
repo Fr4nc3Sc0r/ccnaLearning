@@ -3,7 +3,7 @@
 # INTRO:
 # INTRO: Nota ricorrente: ogni classe grafica contiene `private static final long serialVersionUID = 1L;`. I componenti Swing sono "serializzabili" (salvabili come byte) e Java raccomanda di dichiarare un numero di versione; nel programma non si usa questa funzione, la riga serve solo a evitare un avviso del compilatore.
 @@ ui/Ui.java | colori, caratteri e funzioni per creare componenti nello stile del programma.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import dei componenti Swing e AWT usati (pulsanti, etichette, pannelli, bordi, colori, caratteri, vincoli GridBag).
 >> /** Costanti grafiche e piccoli helper Swing condivisi. */
 Inizio della classe `Ui`.
@@ -32,14 +32,14 @@ Imposta un carattere su un componente e, **ricorsivamente** (il metodo chiama s�
 >> public static String pct(double v) {
 Formatta una percentuale senza decimali: `%.0f` è il numero arrotondato, `%%` scrive il simbolo %.
 @@ ui/WrapLabel.java | etichetta multilinea con a capo automatico.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Etichetta multilinea con a-capo automatico (basata su JTextArea non modificabile). */
 La classe **estende** `JTextArea` (un'area di testo) e la trasforma in un'etichetta.
 >> public WrapLabel(String text, Font font) {
 Costruttore: imposta testo (con `super(text)`, cioè il costruttore di `JTextArea`) e carattere, attiva l'a capo per parole (`setLineWrap` + `setWrapStyleWord`), la rende non modificabile e non selezionabile (niente focus, niente evidenziazione), trasparente, senza bordo, con testo nero.
 @@ ui/ScrollablePanel.java | pannello che segue la larghezza della finestra.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Pannello che segue la larghezza del viewport (così il testo va a capo) e scorre in verticale. */
 `implements Scrollable`: la classe promette di fornire i metodi che una `JScrollPane` interroga per sapere come far scorrere il contenuto.
@@ -56,7 +56,7 @@ Costruttore: passa il layout scelto al pannello.
 >> @Override
 `getScrollableTracksViewportHeight = false`: in altezza il pannello può crescere quanto vuole → compare la barra verticale.
 @@ ui/ScoreBar.java | barra grafica del punteggio con la soglia.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import delle classi di disegno (`Graphics2D`, colori, tratti).
 >> /** Barra orizzontale del punteggio (300-1000) con la soglia di superamento. */
 `extends JComponent`: un componente "vuoto" che disegniamo noi.
@@ -77,7 +77,7 @@ Posizione orizzontale della soglia 825; disegna una linea verticale nera tratteg
 >> g.setFont(Ui.SMALL);
 Scrive "Soglia 825" centrata sotto la linea (senza uscire dal bordo destro: `Math.min`) e "300" all'inizio. `stringWidth` misura la larghezza del testo in pixel. `dispose()` libera la copia del pennello.
 @@ ui/ScoreChart.java | grafico a linee dei punteggi nel tempo.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Grafico a linee dell'andamento dei punteggi nel tempo. */
 Inizio della classe (componente disegnato a mano).
@@ -102,7 +102,7 @@ Linea più spessa per la spezzata. Per ogni risultato calcola la x (distribuendo
 >> g.setColor(Color.GRAY);
 Didascalia "Ultimi N esami" in basso a destra e rilascio del pennello.
 @@ ui/MainFrame.java | la finestra principale e la navigazione tra le schermate.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Finestra principale: alterna menu, esame in corso e risultati. */
 `extends JFrame`: è una finestra.
@@ -133,7 +133,7 @@ Finestra di conferma Sì/No; restituisce vero se l'utente accetta di abbandonare
 >> private void exit() {
 Se c'è un esame e l'utente non conferma, non fa nulla; altrimenti chiude la finestra (`dispose`) e termina il programma.
 @@ ui/HomePanel.java | il menu principale a schede.
->> package com.ccnaexamlab.ui;
+>> package com.lordoc.ui;
 Pacchetto e import.
 >> /** Menu principale a schede. */
 Inizio della classe.

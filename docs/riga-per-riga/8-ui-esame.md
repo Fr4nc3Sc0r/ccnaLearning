@@ -8,17 +8,17 @@ Questa parte copre lo schermo dell'esame (`ExamPanel`), il disegno della domanda
 
 ## ExamPanel.java
 
-`src/main/java/com/ccnaexamlab/ui/ExamPanel.java` — lo schermo dell'esame in corso.
+`src/main/java/com/lordoc/ui/ExamPanel.java` — lo schermo dell'esame in corso.
 
 **Righe 1–26**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.ExamMode;
- 4  import com.ccnaexamlab.model.ExamSession;
- 5  import com.ccnaexamlab.model.Question;
- 6  import com.ccnaexamlab.util.Text;
+ 3  import com.lordoc.model.ExamMode;
+ 4  import com.lordoc.model.ExamSession;
+ 5  import com.lordoc.model.Question;
+ 6  import com.lordoc.util.Text;
  7  
  8  import javax.swing.AbstractAction;
  9  import javax.swing.BorderFactory;
@@ -454,16 +454,16 @@ Consegna una sola volta: se `finished` è già vero esce; altrimenti lo imposta,
 
 ## QuestionView.java
 
-`src/main/java/com/ccnaexamlab/ui/QuestionView.java` — il disegno di una domanda e dell'area di risposta.
+`src/main/java/com/lordoc/ui/QuestionView.java` — il disegno di una domanda e dell'area di risposta.
 
 **Righe 1–32**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.Question;
- 4  import com.ccnaexamlab.model.QuestionType;
- 5  import com.ccnaexamlab.model.Response;
+ 3  import com.lordoc.model.Question;
+ 4  import com.lordoc.model.QuestionType;
+ 5  import com.lordoc.model.Response;
  6  
  7  import javax.swing.AbstractButton;
  8  import javax.swing.BorderFactory;
@@ -1088,15 +1088,15 @@ Mostra verdetto e risposta corretta; se c'è una spiegazione aggiunge il titolo 
 
 ## ItemReviewDialog.java
 
-`src/main/java/com/ccnaexamlab/ui/ItemReviewDialog.java` — il riepilogo delle domande durante l'esame.
+`src/main/java/com/lordoc/ui/ItemReviewDialog.java` — il riepilogo delle domande durante l'esame.
 
 **Righe 1–20**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.ExamMode;
- 4  import com.ccnaexamlab.model.ExamSession;
+ 3  import com.lordoc.model.ExamMode;
+ 4  import com.lordoc.model.ExamSession;
  5  
  6  import javax.swing.JButton;
  7  import javax.swing.JDialog;
@@ -1313,19 +1313,19 @@ Getter letti da `ExamPanel` dopo la chiusura.
 
 ## ResultsPanel.java
 
-`src/main/java/com/ccnaexamlab/ui/ResultsPanel.java` — il report finale.
+`src/main/java/com/lordoc/ui/ResultsPanel.java` — il report finale.
 
 **Righe 1–32**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.Domain;
- 4  import com.ccnaexamlab.model.DomainScore;
- 5  import com.ccnaexamlab.model.ExamResult;
- 6  import com.ccnaexamlab.model.ExamSession;
- 7  import com.ccnaexamlab.model.Question;
- 8  import com.ccnaexamlab.util.Text;
+ 3  import com.lordoc.model.Domain;
+ 4  import com.lordoc.model.DomainScore;
+ 5  import com.lordoc.model.ExamResult;
+ 6  import com.lordoc.model.ExamSession;
+ 7  import com.lordoc.model.Question;
+ 8  import com.lordoc.util.Text;
  9  
 10  import javax.swing.BorderFactory;
 11  import javax.swing.JComboBox;
@@ -1654,14 +1654,14 @@ Modello della tabella: righe = domande visibili; valori: numero nell'esame, ID (
 
 ## ReviewDialog.java
 
-`src/main/java/com/ccnaexamlab/ui/ReviewDialog.java` — la revisione domanda per domanda.
+`src/main/java/com/lordoc/ui/ReviewDialog.java` — la revisione domanda per domanda.
 
 **Righe 1–12**
 
 ```java
- 1  package com.ccnaexamlab.ui;
+ 1  package com.lordoc.ui;
  2  
- 3  import com.ccnaexamlab.model.ExamSession;
+ 3  import com.lordoc.model.ExamSession;
  4  
  5  import javax.swing.JButton;
  6  import javax.swing.JDialog;

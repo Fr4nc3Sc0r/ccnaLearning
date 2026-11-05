@@ -38,7 +38,7 @@ codice, aggiorna le spiegazioni e rigenera i file con lo script incluso:
 
 ```bash
 cd docs/riga-per-riga/_generatore
-python3 genera.py ../../../src/main/java/com/ccnaexamlab .. annotazioni/*.txt
+python3 genera.py ../../../src/main/java/com/lordoc .. annotazioni/*.txt
 ```
 
 - Le spiegazioni si scrivono nei file `annotazioni/*.txt`. Ogni file Java inizia con
