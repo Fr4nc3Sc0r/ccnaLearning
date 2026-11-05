@@ -1,0 +1,239 @@
+# TITLE: Riga per riga — pacchetto `ui` (3/3): svolgimento dell'esame e report
+# INTRO: Questa parte copre lo schermo dell'esame (`ExamPanel`), il disegno della domanda (`QuestionView`), il riepilogo (`ItemReviewDialog`), il report (`ResultsPanel`) e la revisione (`ReviewDialog`). Descrizione generale: [06 - ui](../06-classi-ui.md); flowchart: [algoritmo 9](../08-algoritmi.md#9-svolgimento-dellesame-navigazione-timer-e-consegna).
+@@ ui/ExamPanel.java | lo schermo dell'esame in corso.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import (modello, componenti Swing, tastiera, timer).
+>> /** Schermata di svolgimento dell'esame. */
+Inizio della classe.
+>> private final ExamSession session;
+Campi: la sessione; `onFinish`, l'azione da eseguire alla consegna (fornita da `MainFrame`); la vista della domanda; le etichette di contatore, cronometro e informazioni; la casella "Marca"; la barra di avanzamento.
+>> private final JButton prevBtn;
+I pulsanti, il timer e l'interruttore `finished` che impedisce la doppia consegna.
+>> public ExamPanel(ExamSession session, Consumer<ExamSession> onFinish) {
+Costruttore: layout a zone (`BorderLayout`) e memorizzazione dei parametri.
+>> // --- barra superiore
+Barra blu: a sinistra "titolo — modalità", al centro il contatore "Domanda X di N" (in un pannello trasparente per centrarlo), a destra il cronometro.
+>> JPanel sub = new JPanel(new BorderLayout());
+Sottobarra azzurra: a sinistra la casella "Marca" (cliccandola aggiorna la marcatura della domanda corrente), a destra tipo/dominio, al centro la barra di avanzamento (massimo = numero di domande, testo visibile, margini laterali).
+>> JPanel north = new JPanel(new GridLayout(2, 1));
+Le due barre impilate (griglia 2 righe × 1 colonna) nella zona alta.
+>> // --- domanda
+La vista della domanda al centro; ogni volta che l'utente modifica una risposta chiama `refreshStatus` per aggiornare la barra.
+>> // --- barra inferiore
+Creazione dei pulsanti, ciascuno con la sua azione: precedente, successiva, riepilogo, mostra risposta, termina (in rosso).
+>> JPanel bottom = new JPanel(new BorderLayout());
+Barra inferiore con una linea di separazione in alto: a sinistra Termina e Riepilogo (più "Mostra risposta" solo in Studio), a destra Precedente e Successiva.
+>> if (!session.isAllowBack()) {
+Modalità "come l'esame reale": nasconde Precedente e Riepilogo.
+>> installKeys();
+Registra le scorciatoie da tastiera.
+>> timer = new Timer(1000, e -> tick());
+Crea la "sveglia" che ogni 1000 ms chiama `tick`, la avvia, mostra subito il tempo iniziale e visualizza la prima domanda.
+>> private void installKeys() {
+Scorciatoie: Alt+→ successiva; Alt+← precedente (solo se il pulsante è visibile e attivo); Ctrl+M inverte la marcatura; Ctrl+R mostra la risposta (solo in Studio).
+>> private void bind(KeyStroke ks, String name, Runnable r) {
+Collega un tasto a un'azione in due passi: la `InputMap` associa il tasto a un nome (valida finché la finestra ha il focus, `WHEN_IN_FOCUSED_WINDOW`), la `ActionMap` associa il nome a un'azione (una classe anonima `AbstractAction` che esegue `r`).
+>> // ------------------------------------------------------------------ navigazione
+Separatore: navigazione tra le domande.
+>> private void go(int index) {
+Mostra la domanda `index` (ignora indici fuori range): aggiorna la posizione corrente, ridisegna la domanda (modificabile solo se non rivelata, con correzione se rivelata), sincronizza la casella "Marca", il contatore, l'abilitazione di Precedente (non sulla prima), il testo di Successiva ("Fine ▶" sull'ultima) e di Mostra risposta.
+>> private void next() {
+Successiva (vedi flowchart): se non si può tornare indietro e la risposta è incompleta chiede conferma; sull'ultima domanda propone la consegna, altrimenti avanza.
+>> private void revealCurrent() {
+(Solo Studio, solo se non già rivelata) segna la domanda come rivelata e la ridisegna con correzione e spiegazione.
+>> private void refreshStatus() {
+Aggiorna la barra ("12 / 75 risposte") e l'etichetta informativa: tipo di domanda, preceduto dal dominio in modalità Studio (in Simulazione il dominio non si mostra, come all'esame).
+>> private void openItemReview() {
+Apre il riepilogo (modale); alla chiusura, se l'utente ha chiesto di terminare chiede conferma di consegna, altrimenti se ha scelto una domanda ci salta.
+>> // ------------------------------------------------------------------ tempo e fine
+Separatore: tempo e consegna.
+>> private void tick() {
+Ogni secondo: +1 secondo, aggiorna il cronometro; se l'esame è a tempo e il tempo è finito ferma il timer, avvisa e consegna.
+>> private void updateTimer() {
+Esame a tempo: mostra il tempo rimanente, in rosa negli ultimi 5 minuti (300 secondi). Altrimenti mostra il tempo trascorso.
+>> private void confirmEnd() {
+Prepara il messaggio di consegna aggiungendo in testa gli avvisi su domande incomplete e marcate, poi chiede conferma; se confermato consegna.
+>> private void finish() {
+Consegna una sola volta: se `finished` è già vero esce; altrimenti lo imposta, ferma il timer e passa la sessione a `onFinish`.
+>> /** Ferma il timer senza consegnare (es. chiusura finestra). */
+`abort`: segna come finito e ferma il timer senza consegnare (usato quando si abbandona l'esame).
+@@ ui/QuestionView.java | il disegno di una domanda e dell'area di risposta.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /**
+Commento della classe.
+>> public final class QuestionView extends JPanel {
+Inizio della classe.
+>> private final ScrollablePanel content = new ScrollablePanel(new GridBagLayout());
+Il contenuto (che segue la larghezza della finestra), il pannello di scorrimento che lo contiene e l'azione da eseguire quando la risposta cambia (all'inizio "non fare nulla").
+>> public QuestionView() {
+Costruttore: sfondo bianco e margini del contenuto, scorrimento solo verticale (20 pixel per scatto), anche lo sfondo della zona di scorrimento bianco.
+>> public void setOnChange(Runnable r) { this.onChange = r == null ? () -> { } : r; }
+Imposta l'azione "risposta cambiata" (un `null` diventa "non fare nulla", per non doverlo controllare ovunque).
+>> /**
+Commento di `display`.
+>> public void display(Question q, Response r, boolean editable, boolean reveal) {
+Ricostruisce tutto da zero: svuota il contenuto; `y` tiene il numero di riga del GridBag.
+>> WrapLabel text = new WrapLabel(q.getDisplayText(), Ui.BASE.deriveFont(16f));
+Il testo della domanda (16 pt, va a capo).
+>> if (q.hasExhibit()) {
+L'exhibit, se c'è.
+>> JPanel answers = new JPanel(new GridBagLayout());
+Pannello trasparente per l'area di risposta.
+>> switch (q.getType()) {
+Sceglie come costruire l'area di risposta in base al tipo.
+>> GridBagConstraints ac = Ui.row(y++);
+Aggiunge l'area di risposta con un po' di spazio in più sopra.
+>> if (reveal) {
+In revisione aggiunge il riquadro con la correzione.
+>> Ui.addFiller(content, y);
+Spinge tutto in alto, chiede di ricalcolare e ridisegnare il layout e, appena possibile (`invokeLater`), riporta lo scorrimento in cima.
+>> // ------------------------------------------------------------------ exhibit
+Separatore: costruzione dell'exhibit.
+>> private JPanel exhibit(String exhibitText) {
+Pannello con il titolo "Exhibit" in blu.
+>> JTextArea area = new JTextArea(exhibitText);
+Area di testo monospazio, non modificabile, sfondo nero e testo chiaro come un terminale, con margine interno.
+>> JScrollPane sp = new JScrollPane(area, ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
+Barra di scorrimento solo orizzontale (righe lunghe), con bordo grigio scuro.
+>> int h = area.getPreferredSize().height + sp.getHorizontalScrollBar().getPreferredSize().height + 4;
+Fissa l'altezza in modo da mostrare tutte le righe più lo spazio della barra orizzontale (altrimenti il layout potrebbe schiacciarlo).
+>> // ------------------------------------------------------------------ choices
+Separatore: domande a scelta.
+>> private void buildChoices(JPanel panel, Question q, Response r, boolean editable, boolean reveal) {
+`single` dice se è SINGLE; il `ButtonGroup` garantisce che un solo pallino sia selezionato.
+>> for (int i = 0; i < opts.size(); i++) {
+Per ogni opzione. `final int idx = i` serve perché le lambda possono usare solo variabili che non cambiano.
+>> AbstractButton btn = single ? new JRadioButton() : new JCheckBox();
+Pallino o casella, con la lettera ("A.") in grassetto; selezionato se la risposta già lo contiene; disattivato se non modificabile; allineato in alto (per opzioni su più righe). I pallini vengono aggiunti al gruppo.
+>> btn.addItemListener(e -> {
+Quando cambia lo stato: se selezionato registra la scelta (svuotando le altre se SINGLE), altrimenti la rimuove; poi avvisa che la risposta è cambiata.
+>> WrapLabel lbl = new WrapLabel(opts.get(i), Ui.BASE);
+Testo dell'opzione che va a capo. Se modificabile, un clic sul testo seleziona il pallino o inverte la casella (comodità: non serve centrare il bottoncino).
+>> JPanel row = new JPanel(new BorderLayout());
+La riga: bottone a sinistra, testo al centro.
+>> if (reveal) {
+In revisione: opzione corretta su sfondo verde con "✔ corretta" (o "corretta (scelta)"); opzione scelta ma sbagliata su sfondo rosa con "✘ scelta errata".
+>> if (!single && editable) {
+Per le MULTI aggiunge il promemoria "Seleziona N risposte".
+>> // ------------------------------------------------------------------ drag & drop (abbinamento)
+Separatore: domande di abbinamento.
+>> private void buildDrag(JPanel panel, Question q, Response r, boolean editable, boolean reveal) {
+Istruzioni in grigio.
+>> List<String> targets = new ArrayList<>();
+Elenco delle voci dei menu: una voce vuota iniziale ("non ancora scelto") seguita dalle categorie.
+>> for (int i = 0; i < items.size(); i++) {
+Per ogni elemento crea una riga GridBag: l'elemento in grassetto si allarga a sinistra.
+>> JComboBox<String> combo = new JComboBox<>(targets.toArray(new String[0]));
+Menu a tendina con le categorie, preimpostato sulla scelta già fatta; largo quanto la voce più lunga (`setPrototypeDisplayValue`). Alla scelta salva l'abbinamento e avvisa.
+>> c.gridx = 1;
+Il menu nella seconda colonna, senza allargarsi.
+>> if (reveal) {
+In revisione la riga diventa verde con ✔ se giusta, rosa con "✘ → categoria giusta" se sbagliata.
+>> private static String longest(List<String> l) {
+Restituisce il testo più lungo dell'elenco (minimo 10 caratteri) per dimensionare i menu.
+>> // ------------------------------------------------------------------ fill
+Separatore: risposta aperta.
+>> private void buildFill(JPanel panel, Question q, Response r, boolean editable, boolean reveal) {
+Riga con l'etichetta "Risposta:" e un campo di testo monospazio precompilato con la risposta già data.
+>> field.getDocument().addDocumentListener(new DocumentListener() {
+Ascolta ogni modifica del testo (inserimento, cancellazione, cambio di attributi) e la registra subito nella risposta.
+>> if (reveal) {
+In revisione colora lo sfondo del campo di verde o rosa.
+>> if (editable) {
+Se modificabile, porta il cursore nel campo così si può scrivere subito.
+>> // ------------------------------------------------------------------ feedback
+Separatore: il riquadro di correzione.
+>> private JPanel feedback(Question q, Response r) {
+Riquadro grigio chiaro con una barra colorata a sinistra (verde o rossa).
+>> String verdict;
+Il verdetto: corretta, mancante/incompleta, oppure errata.
+>> p.add(Ui.label(verdict, Ui.BOLD.deriveFont(17f), ok ? Ui.OK : Ui.KO), Ui.row(y++));
+Mostra verdetto e risposta corretta; se c'è una spiegazione aggiunge il titolo "Spiegazione" e il testo ripulito; se c'è un riferimento lo mostra in corsivo; in fondo ID, dominio e tipo in grigio.
+>> /** Rimuove la mini-sintassi `codice` e **grassetto** per la visualizzazione in testo semplice. */
+`plain`: toglie gli apici inversi e gli asterischi doppi dalla spiegazione.
+@@ ui/ItemReviewDialog.java | il riepilogo delle domande durante l'esame.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Riepilogo di tutte le domande (risposte/incomplete/marcate) con salto rapido. */
+Inizio della classe (finestra secondaria).
+>> private final ExamSession session;
+Campi: sessione, tabella, indice scelto (−1 = nessuno) e richiesta di terminare.
+>> public ItemReviewDialog(Window owner, ExamSession session) {
+Costruttore: finestra modale; in Studio si mostra anche la colonna del dominio.
+>> table = new JTable(new AbstractTableModel() {
+Modello della tabella scritto come classe anonima: righe = domande; colonne #, Stato, Marcata (e Dominio). `getValueAt` restituisce il numero, "Risposta data"/"Incompleta", "⚑ Marcata" o vuoto, e il dominio.
+>> table.setRowHeight(24);
+Aspetto e selezione singola; la prima colonna stretta.
+>> table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+Un *renderer* decide come disegnare ogni cella: qui (se la riga non è selezionata) colora di rosso "Incompleta" e di arancio la colonna "Marcata".
+>> table.addMouseListener(new MouseAdapter() {
+Doppio clic su una riga: salta a quella domanda.
+>> if (session.getCurrent() < session.size()) {
+Seleziona all'apertura la riga della domanda corrente.
+>> JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+Pulsanti: vai alla selezionata, prima incompleta, prima marcata, termina esame (rosso, imposta `endRequested` e chiude), chiudi.
+>> JPanel root = new JPanel(new BorderLayout());
+Intestazione con i conteggi, tabella, pulsanti; dimensione e posizione.
+>> private void jump(int idx) {
+Memorizza la domanda scelta e chiude la finestra.
+>> private void jumpFirst(boolean marked) {
+Cerca la prima domanda marcata (o la prima incompleta) e ci salta; se non ce ne sono lo dice.
+>> public int getSelectedIndex() { return selectedIndex; }
+Getter letti da `ExamPanel` dopo la chiusura.
+@@ ui/ResultsPanel.java | il report finale.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Report finale dell'esame: punteggio, dettaglio per dominio, revisione domande. */
+Inizio della classe.
+>> private static final String[] FILTERS = {"Tutte", "Solo errate / incomplete", "Solo corrette", "Solo marcate"};
+Le voci del filtro.
+>> private final ExamResult result;
+Campi: risultato, sessione, la lista `visible` degli indici delle domande che passano il filtro, il menu del filtro e il modello della tabella.
+>> public ResultsPanel(ExamResult result, Runnable onHome, Consumer<List<Question>> onRetryWrong) {
+Costruttore: riceve il risultato e le due azioni (tornare al menu, ripassare gli errori); in alto l'intestazione.
+>> JTable questions = new JTable(questionsModel);
+Tabella delle domande: altezza righe, carattere, selezione singola, larghezze di prima e ultima colonna.
+>> questions.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+Colora la colonna Esito di verde o rosso secondo la correttezza della domanda di quella riga.
+>> questions.addMouseListener(new MouseAdapter() {
+Doppio clic: apre la revisione dalla riga cliccata.
+>> filter.addActionListener(e -> applyFilter());
+Cambiando filtro si ricalcola l'elenco; un primo calcolo all'avvio.
+>> JPanel qPanel = new JPanel(new BorderLayout());
+Riquadro domande con titolo, la riga filtro + "Rivedi selezionata" (se nessuna riga è selezionata parte dalla prima) e la tabella.
+>> JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buildDomainPanel(), qPanel);
+Domini a sinistra (42%) e domande a destra.
+>> JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+Pulsante "Ripassa errori": raccoglie le domande non corrette; se non ce ne sono si congratula, altrimenti chiama l'azione ricevuta.
+>> bottom.add(Ui.button("Torna al menu principale", onHome));
+Pulsante per tornare al menu.
+>> private JPanel buildHeader() {
+Intestazione bianca con linea inferiore. A sinistra: titolo, SUPERATO/NON SUPERATO in verde/rosso, riga con corrette, percentuale (`%.1f` = un decimale) e tempo.
+>> JPanel right = new JPanel(new BorderLayout());
+A destra: il punteggio grande, la barra con la soglia e la nota che spiega che la soglia è una stima.
+>> private JPanel buildDomainPanel() {
+Per ogni dominio presente nel risultato: nome con peso e una barra con corrette/totale e percentuale, colorata verde (≥ 82,5%), arancio (≥ 60%) o rossa. In fondo la legenda (un'etichetta HTML per avere il corsivo e l'a capo).
+>> private void applyFilter() {
+Ricostruisce `visible`: per ogni domanda verifica il filtro scelto (0 tutte, 1 errate, 2 corrette, 3 marcate) e notifica la tabella.
+>> private void openReview(int row) {
+Apre la revisione sulle domande filtrate, partendo dalla riga indicata (limitata all'ultima disponibile).
+>> private final class QuestionsModel extends AbstractTableModel {
+Modello della tabella: righe = domande visibili; valori: numero nell'esame, ID (con ⚑ se marcata), dominio, tipo, esito (corretta / errata / mancante).
+@@ ui/ReviewDialog.java | la revisione domanda per domanda.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Revisione post-esame: mostra domanda, risposta data, risposta corretta e spiegazione. */
+Inizio della classe.
+>> private final ExamSession session;
+Campi: sessione, indici da rivedere, vista della domanda, etichetta del contatore, pulsanti e posizione corrente nella lista.
+>> public ReviewDialog(Window owner, ExamSession session, List<Integer> indexes, int startPos) {
+Costruttore: finestra modale, memorizzazione dei parametri.
+>> JPanel top = new JPanel(new BorderLayout());
+Barra blu con il contatore.
+>> prev = Ui.button("◀ Precedente", () -> show(pos - 1));
+Pulsanti Precedente, Successiva e Chiudi.
+>> JPanel root = new JPanel(new BorderLayout());
+Composizione, dimensioni (980×760), posizione e prima domanda.
+>> private void show(int p) {
+Mostra la posizione `p` (se valida): la domanda in sola lettura con correzione, il contatore con numero nell'esame, posizione nella revisione ed eventuale marcatura; abilita/disabilita i pulsanti agli estremi.

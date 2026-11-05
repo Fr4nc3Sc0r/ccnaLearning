@@ -94,6 +94,18 @@ Opzioni JVM facoltative:
 - `-Dccna.laf=Nimbus` per forzare un look and feel (default: quello del sistema)
 - `-Dccna.examlab.home=/percorso` per cambiare la cartella dei dati utente
 
+## Documentazione
+
+La cartella [`docs/`](docs/README.md) contiene la documentazione completa, scritta anche per chi non
+conosce la programmazione:
+
+- [concetti base](docs/01-concetti-base.md) e [funzionamento generale](docs/02-come-funziona.md) con diagrammi UML;
+- una scheda dettagliata per ogni classe ([model](docs/03-classi-model.md), [data](docs/04-classi-data.md),
+  [engine](docs/05-classi-engine.md), [ui](docs/06-classi-ui.md), [app e util](docs/07-classi-app-util.md));
+- i [procedimenti principali con flowchart](docs/08-algoritmi.md), spiegati a parole, in pseudocodice e in Java;
+- la [guida alla manutenzione](docs/09-manutenzione.md): aggiungere domande, cambiare parametri, risolvere problemi;
+- il [codice spiegato riga per riga](docs/riga-per-riga/README.md).
+
 ## Struttura del progetto
 
 ```
@@ -102,7 +114,7 @@ ccnaLearning/
 ├── build.sh / build.bat         # build con il solo JDK
 ├── run.sh / run.bat
 ├── .github/workflows/build.yml  # CI: compila e valida le domande
-├── docs/screenshots/
+├── docs/                        # documentazione completa (vedi docs/README.md)
 └── src/main/
     ├── java/com/ccnaexamlab/
     │   ├── app/        Main (avvio, --validate), AppContext (servizi condivisi)

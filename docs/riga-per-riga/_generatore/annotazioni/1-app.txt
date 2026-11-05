@@ -1,0 +1,56 @@
+# TITLE: Riga per riga — pacchetto `app`
+# INTRO: Il pacchetto `app` contiene il punto di partenza del programma (`Main`) e il contenitore dei servizi condivisi (`AppContext`). Per la descrizione generale vedi [07 - app e util](../07-classi-app-util.md).
+@@ app/Main.java | punto di ingresso: avvia la grafica o la validazione da riga di comando.
+>> package com.ccnaexamlab.app;
+Dichiara il **pacchetto** del file: la classe vive nella "cartella logica" `com.ccnaexamlab.app`. Deve corrispondere alla cartella fisica `src/main/java/com/ccnaexamlab/app/`.
+>> import com.ccnaexamlab.data.QuestionBank;
+Gli `import` elencano le classi di altri pacchetti che useremo: la banca domande, il magazzino dei dati utente e la finestra principale (classi nostre), poi tre classi di Swing: `JOptionPane` (messaggi a comparsa), `SwingUtilities` (per lavorare sul filo della grafica) e `UIManager` (aspetto grafico).
+>> /** Punto di ingresso dell'applicazione. */
+Commento di documentazione (Javadoc): spiega a cosa serve la classe. I commenti non vengono eseguiti.
+>> public final class Main {
+Inizia la classe `Main`. `public` = visibile ovunque; `final` = nessuno può crearne una versione "derivata".
+>> private Main() { }
+Costruttore **privato** e vuoto: impedisce di creare oggetti `Main`. La classe serve solo come contenitore di metodi statici.
+>> public static void main(String[] args) {
+Il metodo `main` è la **porta d'ingresso**: è la prima cosa che la JVM esegue. `args` contiene le parole scritte dopo il comando (es. `--validate`).
+>> System.setProperty("awt.useSystemAAFontSettings", "on");
+Due impostazioni di sistema che attivano l'**antialiasing** del testo (bordi delle lettere smussati, più leggibili), soprattutto su Linux.
+>> if (args.length > 0 && args[0].equals("--validate")) {
+Se è stato passato almeno un argomento e il primo è `--validate`, esegue la validazione delle domande e **termina** il programma con il codice restituito (0 = tutto ok, 1 = errori). `System.exit` chiude la JVM.
+>> SwingUtilities.invokeLater(() -> {
+Tutto ciò che riguarda la grafica deve girare sul filo della grafica (EDT). `invokeLater` gli consegna il blocco di codice tra le graffe (una *lambda*) da eseguire appena possibile.
+>> setLookAndFeel();
+Sceglie l'aspetto grafico (quello del sistema operativo, o quello richiesto con `-Dccna.laf`).
+>> UserDataStore store = new UserDataStore(UserDataStore.defaultDirectory());
+Crea il magazzino dei dati utente puntato su `~/.ccna-examlab` e lo carica: crea la cartella se manca, legge storico e statistiche.
+>> QuestionBank bank = QuestionBank.load(store.getUserQuestionsDirectory());
+Carica tutte le domande: quelle incluse nel programma più quelle personali nella sottocartella `questions`.
+>> AppContext ctx = new AppContext(bank, store);
+Mette insieme i servizi (banca, magazzino e, al suo interno, la fabbrica di esami) in un unico oggetto da passare alle finestre.
+>> MainFrame frame = new MainFrame(ctx);
+Crea la finestra principale e la rende visibile.
+>> if (!bank.getErrors().isEmpty()) {
+Se durante il caricamento sono stati trovati errori nelle domande, prepara un messaggio con i primi 15 (`limit(15)`), ciascuno preceduto da un pallino, e lo mostra in una finestra di avviso sopra quella principale. Il programma continua comunque a funzionare con le domande valide.
+>> });
+Fine della lambda passata a `invokeLater` e del metodo `main`.
+>> /** Modalità a riga di comando: verifica i file delle domande (utile prima di un commit). */
+Metodo `validate`: usato da `--validate` e dagli script di build.
+>> private static int validate() {
+Carica solo le domande incluse (`null` = nessuna cartella utente), stampa il totale e, per ogni dominio, una riga formattata (`%-40s` = testo allineato a sinistra su 40 caratteri, `%3d` = numero su 3 cifre). Poi stampa ogni errore. Restituisce 0 se non ci sono errori, altrimenti 1 (operatore ternario `condizione ? a : b`).
+>> private static void setLookAndFeel() {
+Legge la proprietà `ccna.laf` (passabile con `-Dccna.laf=Nimbus`). Se presente, cerca tra gli aspetti installati quello con lo stesso nome (ignorando maiuscole) e lo applica, poi esce con `return`. Altrimenti applica l'aspetto del sistema operativo.
+>> } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException e) {
+Se l'aspetto non si può caricare, invece di bloccarsi scrive un messaggio sull'uscita d'errore e prosegue con l'aspetto predefinito di Java.
+@@ app/AppContext.java | contenitore dei servizi condivisi.
+>> package com.ccnaexamlab.app;
+Pacchetto e import: usa la banca domande, il magazzino dati e la fabbrica di esami.
+>> /** Servizi condivisi dall'applicazione. */
+Inizio della classe `AppContext`.
+>> public static final String APP_NAME = "CCNA ExamLab";
+Due **costanti** (`static final`): il nome e la versione del programma, mostrati nel titolo e nella finestra "Informazioni". La versione va tenuta allineata a quella in `pom.xml`.
+>> private final QuestionBank bank;
+I tre servizi. `private final`: visibili solo qui dentro e impostati una sola volta.
+>> public AppContext(QuestionBank bank, UserDataStore store) {
+Costruttore: memorizza banca e magazzino ricevuti (`this.bank` è il campo, `bank` il parametro) e crea la fabbrica di esami, che ha bisogno di entrambi.
+>> public QuestionBank getBank() { return bank; }
+Tre **getter**: metodi che restituiscono i servizi a chi li chiede (le finestre).

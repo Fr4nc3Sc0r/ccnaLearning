@@ -1,0 +1,210 @@
+# TITLE: Riga per riga — pacchetto `data`
+# INTRO: Il pacchetto `data` legge le domande dai file (`QuestionParser`, `QuestionBank`), ne genera di nuove (`SubnetQuestionGenerator`) e conserva i dati dell'utente (`UserDataStore`, `QuestionStat`). Descrizione generale: [04 - data](../04-classi-data.md).
+@@ data/QuestionParseException.java | errore di formato in un file di domande.
+>> package com.ccnaexamlab.data;
+Pacchetto e commento.
+>> public class QuestionParseException extends Exception {
+Un nuovo tipo di errore: `extends Exception` significa "è un tipo di eccezione". `serialVersionUID` è un numero di versione richiesto da Java per gli oggetti serializzabili (le eccezioni lo sono); qui non ha effetti pratici.
+>> public QuestionParseException(String message) {
+Il costruttore riceve il messaggio d'errore e lo passa alla classe madre con `super(...)`.
+@@ data/QuestionParser.java | lettura del formato a blocchi `[Q]...[/Q]`.
+>> package com.ccnaexamlab.data;
+Pacchetto e import: le classi del modello, `Text` per ripulire i blocchi e le classi Java per leggere testo ed espressioni regolari (`Pattern`, `Matcher`).
+>> /**
+Lungo commento con un esempio del formato. Il tag `<pre>` serve a mantenerlo impaginato nella documentazione Javadoc.
+>> public final class QuestionParser {
+Inizio della classe.
+>> private static final Pattern KEY = Pattern.compile(
+Espressione regolare **precompilata** (per efficienza) che riconosce le righe "chiave: valore". Vedi la spiegazione nell'[algoritmo 1](../08-algoritmi.md#1-lettura-dei-file-delle-domande-parser).
+>> private static final Pattern OPTION = Pattern.compile("^\\s*([A-Za-z])[).]\\s+(.*)$");
+Riconosce una riga di opzione: eventuali spazi, una lettera (gruppo 1), una parentesi chiusa o un punto, almeno uno spazio, il testo (gruppo 2).
+>> private QuestionParser() { }
+Costruttore privato: la classe ha solo metodi statici.
+>> /**
+Commento del metodo `parse`.
+>> public static List<Question> parse(Reader reader, String source, List<String> errors) throws IOException {
+Il metodo principale. Riceve una sorgente di testo, il nome del file (per i messaggi) e la lista in cui annotare gli errori. `throws IOException` avvisa che può fallire per un errore di lettura del disco.
+>> List<Question> result = new ArrayList<>();
+Variabili di lavoro: lista dei risultati, lettore a righe (`BufferedReader`), riga corrente, numero di riga, riga d'inizio del blocco, la "scheda" aperta (`fields`, una mappa chiave → testo; `null` se nessuna scheda è aperta) e la chiave che si sta riempiendo.
+>> while ((line = br.readLine()) != null) {
+Legge una riga alla volta finché il file non finisce (`readLine` restituisce `null` alla fine). Incrementa il numero di riga e prepara la versione senza spazi agli estremi.
+>> if (fields == null) {
+Fuori da un blocco: se la riga è `[Q]` apre una scheda nuova (una `LinkedHashMap`, che ricorda l'ordine) e annota la riga di inizio; qualunque altra riga (commenti, righe vuote) viene ignorata con `continue` (passa alla riga successiva).
+>> if (trimmed.equals("[/Q]")) {
+Fine blocco: prova a costruire la domanda; se `build` segnala un problema (eccezione di formato o di coerenza), lo annota con file e riga d'inizio del blocco. In ogni caso chiude la scheda.
+>> Matcher m = KEY.matcher(line);
+Applica l'espressione regolare alla riga **originale** (non ripulita: le chiavi devono essere a colonna 0).
+>> if (m.matches()) {
+Nuova chiave: diventa la chiave corrente; si crea un nuovo contenitore di testo con l'eventuale valore scritto sulla stessa riga e lo si mette nella scheda.
+>> } else if (currentKey != null) {
+Riga di continuazione: viene aggiunta al testo della chiave corrente, preceduta da un a capo se il testo non è vuoto. Le righe prima della prima chiave vengono ignorate.
+>> if (fields != null) {
+Il file è finito con una scheda ancora aperta: errore "blocco non chiuso". Poi restituisce le domande valide.
+>> private static Question build(Map<String, StringBuilder> f, String source) throws QuestionParseException {
+Trasforma la scheda in una domanda. Parte da un Builder con il nome del file; l'ID è obbligatorio.
+>> try {
+Converte il testo del dominio con `Domain.parse`; se fallisce trasforma l'errore in un `QuestionParseException` con l'ID davanti.
+>> QuestionType type;
+Converte il tipo: `valueOf` cerca il valore dell'enum con quel nome esatto (per questo prima lo si mette in maiuscolo); un nome sconosciuto diventa un errore leggibile.
+>> b.type(type);
+Copia tipo, testi (ripuliti con `trimBlock`, che conserva l'indentazione interna) e riferimento.
+>> String shuffle = value(f, "shuffle").toLowerCase(Locale.ROOT);
+Il mescolamento è consentito salvo che il campo valga "no" o "false" (`!` = negazione).
+>> String answer = value(f, "answer");
+Legge la risposta e la interpreta secondo il tipo:
+>> case SINGLE:
+**SINGLE/MULTI**: prima legge le opzioni; poi divide `answer` su virgole e spazi (`[,\\s]+`), e per ogni pezzo verifica che sia una sola lettera A-Z e la converte in posizione (`c - 'A'`: 'C' − 'A' = 2).
+>> case FILL:
+**FILL**: divide sulle barre verticali (`\\|`, protetta perché nelle regex `|` significa "oppure") e aggiunge ogni alternativa non vuota.
+>> case DRAG:
+**DRAG**: per ogni riga non vuota di `items` cerca `=>`; ciò che sta prima è l'elemento, ciò che sta dopo la categoria giusta (`substring` estrae una parte di testo). Una riga senza `=>` è un errore.
+>> for (String t : value(f, "targets").split("\\|")) {
+Aggiunge le eventuali categorie extra (distrattori).
+>> default:
+Nessun altro tipo previsto.
+>> try {
+Chiama i controlli di coerenza del Builder; se falliscono, il messaggio viene riportato come errore di formato.
+>> private static void parseOptions(String block, Question.Builder b) {
+Divide il blocco `options:` in opzioni. Per ogni riga: se inizia con "lettera)" chiude l'opzione precedente e ne apre una nuova; se è una riga non vuota senza lettera, la aggiunge all'opzione in corso (opzioni su più righe). Alla fine salva l'ultima opzione e le passa tutte al Builder (`b::option` = "chiama `b.option(...)` per ognuna"). Nota: la lettera scritta nel file non viene controllata, conta l'**ordine** delle righe.
+>> private static String raw(Map<String, StringBuilder> f, String key) {
+Testo di una chiave così com'è (o vuoto se la chiave manca).
+>> private static String value(Map<String, StringBuilder> f, String key) {
+Come `raw`, ma senza spazi agli estremi: usato per i campi su una riga.
+@@ data/QuestionBank.java | archivio di tutte le domande caricate.
+>> package com.ccnaexamlab.data;
+Pacchetto e import.
+>> /**
+Commento della classe.
+>> public final class QuestionBank {
+Inizio della classe.
+>> private static final String INDEX = "/questions/index.txt";
+Percorso, dentro il `.jar`, del file che elenca i file di domande.
+>> private final Map<String, Question> byId = new LinkedHashMap<>();
+Le domande indicizzate per ID (mantenendo l'ordine di inserimento) e la lista degli errori di caricamento.
+>> public static QuestionBank load(Path userQuestionsDir) {
+Crea una banca, carica le domande incluse e, se la cartella utente esiste ed è una cartella, anche quelle personali.
+>> private void loadBuiltIn() {
+Apre l'indice come **risorsa** del programma (`getResourceAsStream`); se manca annota un errore e si ferma.
+>> try (BufferedReader br = new BufferedReader(new InputStreamReader(idx, StandardCharsets.UTF_8))) {
+`try (...)` "con risorse" chiude automaticamente il file alla fine. Per ogni riga dell'indice non vuota e non commentata costruisce il percorso della risorsa, la apre (o annota che manca) e la passa al parser; le domande ottenute vengono aggiunte alla banca.
+>> } catch (IOException e) {
+Errore di lettura: annotato, senza bloccare il programma.
+>> private void loadDirectory(Path dir) {
+Elenca i file `*.txt` della cartella utente (`newDirectoryStream` con un filtro) e li passa al parser uno a uno; un file illeggibile viene annotato e si passa al successivo.
+>> private void addAll(List<Question> list) {
+Aggiunge le domande alla mappa; se un ID esiste già, annota l'errore e ignora il duplicato (vince la prima domanda caricata).
+>> public List<Question> all() { return new ArrayList<>(byId.values()); }
+Copia di tutte le domande (una copia, così chi la riceve può mescolarla senza alterare la banca).
+>> public int size() { return byId.size(); }
+Numero di domande, ricerca per ID e lista degli errori in sola lettura.
+>> public List<Question> byDomain(Domain d) {
+Nuova lista con le sole domande del dominio indicato.
+>> public Map<Domain, Integer> countByDomain() {
+Conteggio per dominio: prima mette 0 per tutti i domini (così compaiono anche quelli vuoti), poi per ogni domanda aggiunge 1 al suo dominio (`merge(..., 1, Integer::sum)` = "se c'è già somma 1").
+@@ data/QuestionStat.java | statistiche persistenti di una domanda.
+>> package com.ccnaexamlab.data;
+Pacchetto e commento.
+>> public final class QuestionStat {
+I quattro dati: viste, corrette, esito dell'ultima volta, marcata.
+>> public QuestionStat() { }
+Costruttore vuoto (tutto a zero/falso) e costruttore con valori, usato quando si rilegge `stats.tsv` (senza `public`: visibile solo nel pacchetto `data`).
+>> public void record(boolean ok) {
+Registra un nuovo tentativo: +1 viste, +1 corrette se giusta, ricorda l'ultimo esito.
+>> public int getSeen() { return seen; }
+Getter; `getWrong` calcola le risposte sbagliate come differenza. Getter e setter della marcatura.
+@@ data/UserDataStore.java | storico e statistiche su file.
+>> package com.ccnaexamlab.data;
+Pacchetto e import: modello, file (`java.nio.file`), date e collezioni.
+>> /**
+Commento con l'elenco dei file gestiti.
+>> public final class UserDataStore {
+Inizio della classe.
+>> private final Path dir;
+Percorsi della cartella e dei due file, lo storico in memoria e la mappa ID → statistiche.
+>> public UserDataStore(Path dir) {
+Costruttore: calcola i percorsi dei file dentro la cartella (`resolve` = "cartella + nome file"). Non legge ancora nulla.
+>> public static Path defaultDirectory() {
+Cartella predefinita: se è stata impostata la proprietà `ccna.examlab.home` usa quella, altrimenti `.ccna-examlab` nella cartella personale (`user.home`).
+>> public Path getDirectory() { return dir; }
+Getter della cartella dati e della sottocartella delle domande personali.
+>> public void load() {
+Crea (se mancano) la cartella e la sottocartella `questions` — `createDirectories` crea anche le cartelle intermedie — poi carica storico e statistiche. Un errore di creazione viene solo segnalato.
+>> // ------------------------------------------------------------------ storico
+Separatore visivo: inizia la parte dedicata allo storico.
+>> public List<ExamResult> getHistory() { return Collections.unmodifiableList(history); }
+Lo storico in sola lettura.
+>> private void loadHistory() {
+Svuota lo storico in memoria; se il file non esiste ha finito. Altrimenti legge tutte le righe (UTF-8), salta quelle vuote o di commento e prova a convertire ognuna: una riga rovinata viene ignorata con un messaggio, senza perdere le altre.
+>> private static ExamResult parseHistoryLine(String line) {
+Converte una riga in risultato: divide sui TAB (`-1` mantiene anche i campi vuoti finali), poi converte data, titolo, modalità e numeri. Il settimo campo (`p[6]`), se presente, contiene `DOMINIO:corrette/totale` separati da `;`: lo divide e ricostruisce i `DomainScore`. La sessione è `null` (non viene salvata).
+>> private static String toHistoryLine(ExamResult r) {
+Operazione inversa: costruisce il dettaglio per dominio (`;` tra i domini) e unisce i campi con TAB. La data viene salvata senza frazioni di secondo (`withNano(0)`); eventuali TAB nel titolo vengono sostituiti da spazi per non rompere il formato.
+>> /** Registra il risultato nello storico e aggiorna le statistiche delle domande. */
+`recordResult` ([algoritmo 8](../08-algoritmi.md#8-salvataggio-del-risultato)).
+>> public void recordResult(ExamResult result) {
+Aggiunge il risultato in memoria e in coda al file (`CREATE` + `APPEND`); poi, se c'è la sessione, aggiorna la statistica di ogni domanda non generata (esito e marcatura) e salva le statistiche.
+>> public void clearHistory() {
+Svuota storico e statistiche in memoria e cancella i due file (`deleteIfExists` non dà errore se il file non c'è).
+>> // ---------------------------------------------------------- statistiche
+Separatore: inizia la parte dedicata alle statistiche.
+>> public QuestionStat stat(String id) { return stats.computeIfAbsent(id, k -> new QuestionStat()); }
+Restituisce la statistica dell'ID, creandola vuota se non esiste.
+>> public QuestionStat peekStat(String id) { return stats.get(id); }
+Restituisce la statistica o `null`, senza crearla (lettura pura).
+>> public void setFlagged(String id, boolean flagged) {
+Imposta la marcatura e salva subito.
+>> private void loadStats() {
+Legge `stats.tsv`: per ogni riga con almeno 5 campi e che non è un commento crea una `QuestionStat`; le righe con numeri non validi vengono ignorate con un messaggio.
+>> private void saveStats() {
+Riscrive l'intero file: intestazione di commento, poi una riga per ogni statistica con i campi separati da TAB. Il `try` interno con risorse chiude il file anche in caso di errore.
+@@ data/SubnetQuestionGenerator.java | generatore di esercizi di subnetting.
+>> package com.ccnaexamlab.data;
+Pacchetto e import.
+>> /**
+Commento della classe.
+>> public final class SubnetQuestionGenerator {
+Inizio della classe.
+>> private static final String REF = "CCNA 200-301 exam topic 1.6 – Configure and verify IPv4 addressing and subnetting";
+Riferimento comune a tutte le domande generate.
+>> private final Random random;
+Il generatore casuale (ricevuto dall'esterno, così nei test si può usare un seme fisso) e il contatore delle domande prodotte.
+>> public SubnetQuestionGenerator(Random random) {
+Costruttore.
+>> public List<Question> generate(int count) {
+Genera `count` domande chiamando ripetutamente `generateOne`.
+>> public Question generateOne() {
+Incrementa il contatore, sceglie una variante tra 0 e 5 e chiama il metodo corrispondente (`default` copre il 5).
+>> // ------------------------------------------------------------------ helpers
+Separatore: metodi di supporto.
+>> private int randomPrefix(int min, int max) { return min + random.nextInt(max - min + 1); }
+Prefisso casuale tra `min` e `max` inclusi (`nextInt(n)` restituisce un numero da 0 a n−1).
+>> private long randomIp(int prefix) {
+Indirizzo casuale: per prefissi ≥ /24 sceglie a caso tra le tre reti private, altrimenti tra 10.x e 172.16-31.x (192.168/16 è troppo piccola per prefissi corti). Alla base aggiunge un numero casuale nei bit disponibili (`1 << 24` = 2^24). Poi calcola rete e broadcast e sceglie un punto a caso **strettamente** tra i due, così l'indirizzo è sempre un host valido.
+>> private Question.Builder base(QuestionType type) {
+Builder precompilato: ID `GEN-SUB-0001` (`%04d` = numero su 4 cifre con zeri), dominio 1.0, tipo, flag "generata", sorgente e riferimento.
+>> /** Spiegazione col metodo del magic number. */
+`method`: costruisce la spiegazione in 5 passi ([algoritmo 7](../08-algoritmi.md#7-generatore-di-subnetting-e-metodo-del-magic-number)).
+>> private static String method(long ip, int prefix) {
+Calcola l'ottetto interessante, il valore della maschera in quell'ottetto, il block size, il valore dell'host in quell'ottetto e l'inizio del suo blocco (divisione intera e moltiplicazione), poi rete e broadcast completi.
+>> StringBuilder sb = new StringBuilder();
+Scrive i cinque passi uno per riga, con i valori calcolati; gli indirizzi sono racchiusi tra apici inversi per evidenziarli.
+>> // ------------------------------------------------------------------ varianti
+Separatore: le sei varianti di domanda.
+>> private Question networkAddress() {
+Variante "indirizzo di rete": prefisso /17-/30, indirizzo casuale, risposta accettata sia come "rete" sia come "rete/prefisso".
+>> private Question broadcastAddress() {
+Variante "broadcast": la domanda fornisce IP e maschera puntata; spiegazione con il trucco "subnet successiva − 1".
+>> private Question lastUsable() {
+Variante "ultimo host": prefisso /20-/30; la risposta è broadcast − 1.
+>> private Question hostsPerSubnet() {
+Variante "quanti host": prefisso /18-/30; a caso la domanda usa la maschera puntata o il prefisso. La spiegazione mostra il calcolo 2^n − 2 e l'eccezione /31.
+>> private Question maskForHosts() {
+Variante "maschera per N host": sceglie il prefisso giusto, calcola l'intervallo di host per cui è il più adatto (più del prefisso successivo, al massimo il suo) e prende un numero di host a caso in quell'intervallo. Le opzioni sono il prefisso giusto, quello successivo, quello precedente e un quarto (2 più grande o 2 più piccolo), raccolte in un `LinkedHashSet` per evitare doppioni.
+>> Collections.shuffle(opts, random);
+Mescola le opzioni, scrive il testo e aggiunge ogni opzione come "maschera (/prefisso)", segnando corretta quella giusta.
+>> return b.explanation("Serve il più piccolo n tale che 2^n - 2 ≥ " + needed + ".\n"
+Spiegazione: confronta i due prefissi vicini e motiva la scelta.
+>> private Question validHost() {
+Variante "host valido": prefisso /24-/29; prepara quattro candidati come coppie {indirizzo, valido?}: l'host, l'indirizzo di rete, il broadcast e un indirizzo della subnet successiva.
+>> Collections.shuffle(candidates, random);
+Mescola i candidati, li aggiunge come opzioni e segna corretto quello valido; la spiegazione aggiunge perché gli altri sono sbagliati.

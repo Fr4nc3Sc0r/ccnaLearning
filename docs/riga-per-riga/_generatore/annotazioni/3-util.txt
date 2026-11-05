@@ -1,0 +1,46 @@
+# TITLE: Riga per riga — pacchetto `util`
+# INTRO: Funzioni di utilità senza stato: calcoli sugli indirizzi IPv4 (`IpUtils`) e trattamento dei testi (`Text`). Descrizione generale: [07 - app e util](../07-classi-app-util.md).
+@@ util/IpUtils.java | calcoli IPv4 con operazioni sui bit.
+>> package com.ccnaexamlab.util;
+Pacchetto e commento.
+>> public final class IpUtils {
+Classe di sole funzioni statiche; il costruttore privato impedisce di crearne oggetti.
+>> /** Converte "a.b.c.d" in un long senza segno. */
+`toLong`: divide il testo sui punti (`split("\\.")`; il punto va "protetto" con `\\` perché nelle espressioni regolari significa "qualsiasi carattere"). Se le parti non sono 4 segnala errore.
+>> long v = 0;
+Per ogni parte: la converte in numero (`Integer.parseInt`), segnalando un errore se non è un numero o se è fuori da 0-255. Poi `v = (v << 8) | o` sposta il valore accumulato di 8 bit a sinistra (moltiplica per 256) e inserisce il nuovo ottetto nei bit liberi: dopo quattro giri `v` contiene l'intero indirizzo.
+>> public static String toIp(long v) {
+Operazione inversa: per ogni ottetto sposta a destra di 24, 16, 8 e 0 bit e tiene gli ultimi 8 (`& 255`), poi unisce con i punti.
+>> public static long mask(int prefix) {
+Maschera di `prefix` bit: parte da 32 bit a 1 (`0xFFFFFFFFL`), li sposta a sinistra di (32 − prefisso) posizioni (entrano zeri a destra) e taglia a 32 bit. Il caso /0 è trattato a parte (maschera tutta a zero). `checkPrefix` verifica che il prefisso sia tra 0 e 32.
+>> public static String maskString(int prefix) { return toIp(mask(prefix)); }
+Maschera in forma puntata (es. 255.255.255.192).
+>> public static String wildcardString(int prefix) { return toIp(~mask(prefix) & 0xFFFFFFFFL); }
+Wildcard = maschera con i bit invertiti (`~`), tagliata a 32 bit.
+>> public static long network(long ip, int prefix) { return ip & mask(prefix); }
+Indirizzo di rete: AND bit a bit tra indirizzo e maschera (i bit di host diventano 0).
+>> public static long broadcast(long ip, int prefix) {
+Broadcast: rete OR wildcard (i bit di host diventano 1).
+>> /** Host utilizzabili: /31 = 2 (RFC 3021, link punto-punto), /32 = 1. */
+`usableHosts`: per /32 un solo indirizzo, per /31 due (link punto-punto senza rete né broadcast), altrimenti 2^(bit di host) − 2. `1L << n` è il modo veloce di calcolare 2^n.
+>> /** Converte una maschera puntata (255.255.255.0) in prefisso, verificando che sia contigua. */
+`prefixFromMask`: conta i bit a 1 (`Long.bitCount`) e controlla che la maschera ricostruita da quel numero sia identica all'originale; se non lo è i bit a 1 non erano tutti consecutivi (maschera non valida).
+>> /** Classe "classful" dell'indirizzo (A-E). */
+`ipClass`: estrae il primo ottetto e lo confronta con i limiti storici delle classi (A < 128, B < 192, C < 224, D < 240, altrimenti E).
+>> /** true se l'indirizzo appartiene agli spazi privati RFC 1918. */
+`isPrivate`: verifica se l'indirizzo, "tagliato" a /8, /12 o /16, coincide con 10.0.0.0, 172.16.0.0 o 192.168.0.0.
+>> public static String toBinary(long v) {
+`toBinary`: per ogni bit dal 31° allo 0 aggiunge "0" o "1" (`(v >> i) & 1` estrae il bit i) e un punto ogni 8 bit, tranne alla fine.
+>> private static void checkPrefix(int prefix) {
+Controllo comune: un prefisso fuori da 0-32 genera un errore con un messaggio chiaro.
+@@ util/Text.java | utilità per i testi.
+>> package com.ccnaexamlab.util;
+Pacchetto, commento e costruttore privato (solo funzioni statiche).
+>> public static String escapeHtml(String s) {
+Sostituisce i caratteri speciali dell'HTML (`< > & "`) con i loro codici, così un testo come `<vlan>` viene mostrato e non interpretato. Usa uno `StringBuilder` leggermente più grande del testo e uno `switch` carattere per carattere.
+>> /** Converte testo semplice in HTML, rendendo `codice` in monospace e le righe vuote in paragrafi. */
+`toHtml`: prima protegge i caratteri speciali, poi con due espressioni regolari trasforma `` `x` `` in `<code>x</code>` e `**x**` in `<b>x</b>` (`$1` è il testo catturato tra le parentesi), infine converte gli a capo in `<br>`.
+>> public static String formatDuration(int seconds) {
+Converte secondi in `h:mm:ss` o `mm:ss`: ore = secondi ÷ 3600, minuti = resto ÷ 60, secondi = resto di 60 (`%`). `%02d` scrive un numero su due cifre con lo zero davanti.
+>> /** Elimina righe vuote iniziali e spazi finali, preservando l'indentazione interna. */
+`trimBlock`: `stripTrailing` toglie spazi e a capo in fondo; il ciclo `while` toglie gli a capo all'inizio uno alla volta. Non usa `trim()` perché eliminerebbe anche gli spazi iniziali della prima riga, rovinando l'allineamento degli exhibit.

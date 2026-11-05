@@ -1,0 +1,200 @@
+# TITLE: Riga per riga — pacchetto `model`
+# INTRO: Il pacchetto `model` definisce i concetti del programma: dominio, tipo di domanda, modalità, domanda, risposta, esame in corso, punteggi e risultato. Descrizione generale: [03 - model](../03-classi-model.md).
+@@ model/Domain.java | i sei domini del blueprint con codice, nome e peso.
+>> package com.ccnaexamlab.model;
+Pacchetto `model`.
+>> /**
+Commento che descrive l'enum.
+>> public enum Domain {
+Un **enum** è un tipo con un elenco chiuso di valori. Qui i valori sono i sei domini.
+>> NETWORK_FUNDAMENTALS("1.0", "Network Fundamentals", 20),
+I sei valori. Tra parentesi i tre dati di ciascuno (codice, nome, peso percentuale), passati al costruttore delle righe 19-23. Il punto e virgola dopo l'ultimo valore chiude l'elenco.
+>> private final String code;
+I campi in cui ogni valore ricorda i propri tre dati.
+>> Domain(String code, String title, int weight) {
+Costruttore dell'enum: viene chiamato automaticamente una volta per ciascun valore e salva i dati nei campi.
+>> public String getCode() { return code; }
+Getter: restituiscono codice, nome e peso.
+>> public String getLabel() { return code + " " + title; }
+Etichetta leggibile, es. "3.0 IP Connectivity" (il `+` unisce i testi).
+>> /** Accetta il nome dell'enum (NETWORK_ACCESS), il numero (2) o il codice (2.0). */
+Metodo `parse`: converte il testo scritto nel file delle domande in un dominio.
+>> public static Domain parse(String s) {
+`trim()` toglie gli spazi; poi per ogni dominio (`values()` restituisce tutti i valori) controlla se il testo coincide con il nome (ignorando maiuscole), con il codice ("2.0") o se il codice inizia con il testo seguito da un punto ("2" → "2."). Al primo che corrisponde lo restituisce.
+>> throw new IllegalArgumentException("Dominio sconosciuto: " + s);
+Se nessun dominio corrisponde **lancia un'eccezione** (segnala l'errore): il parser la intercetta e la trasforma in un messaggio.
+>> @Override
+`toString` è il metodo usato da Java quando un oggetto deve diventare testo (es. in un menu a tendina): qui restituisce l'etichetta. `@Override` indica che ridefinisce un metodo ereditato.
+@@ model/QuestionType.java | i quattro tipi di domanda.
+>> package com.ccnaexamlab.model;
+Pacchetto e commento della classe.
+>> public enum QuestionType {
+Enum con i quattro tipi; ognuno ha un commento e un'etichetta in italiano tra parentesi.
+>> private final String label;
+Il campo con l'etichetta, il costruttore che la salva e il getter che la restituisce.
+@@ model/ExamMode.java | le due modalità d'esame.
+>> package com.ccnaexamlab.model;
+Pacchetto e commento.
+>> public enum ExamMode {
+I due valori, Simulazione e Studio, ciascuno con la sua etichetta.
+>> private final String label;
+Campo, costruttore e getter dell'etichetta; `toString` restituisce l'etichetta così i menu a tendina mostrano "Studio" invece di "STUDY".
+@@ model/Response.java | la risposta dell'utente a una domanda.
+>> package com.ccnaexamlab.model;
+Pacchetto e import delle collezioni usate.
+>> /** La risposta data dall'utente a una singola domanda. */
+Inizio della classe.
+>> private final Set<Integer> selected = new TreeSet<>();
+Le opzioni scelte (0 = A, 1 = B…). `TreeSet` è un insieme **ordinato** e senza doppioni: confrontarlo con l'insieme delle risposte giuste diventa immediato.
+>> private final Map<Integer, String> dragAnswers = new HashMap<>();
+Per le domande DRAG: posizione dell'elemento → categoria scelta.
+>> private String fillText = "";
+Per le domande FILL: il testo digitato (inizialmente vuoto).
+>> public Set<Integer> getSelected() { return Collections.unmodifiableSet(selected); }
+Restituisce le scelte in una "vetrina" non modificabile: chi la riceve può leggerla ma non cambiarla.
+>> public void select(int option, boolean single) {
+Seleziona un'opzione. Se la domanda è a risposta singola (`single` vero) prima svuota le scelte precedenti, come fa un pallino radio.
+>> public void deselect(int option) { selected.remove(option); }
+Toglie un'opzione (casella deselezionata).
+>> public String getFillText() { return fillText; }
+Getter e setter del testo libero; il setter trasforma un eventuale `null` in testo vuoto, per evitare errori più avanti.
+>> public String getDragAnswer(int item) { return dragAnswers.get(item); }
+Categoria scelta per l'elemento `item` (o `null` se non ancora scelta).
+>> public void setDragAnswer(int item, String target) {
+Memorizza un abbinamento; se la scelta è vuota (l'utente ha rimesso il menu sulla voce vuota) lo cancella.
+>> public int dragAnswerCount() { return dragAnswers.size(); }
+Quanti elementi sono stati abbinati.
+@@ model/DomainScore.java | contatore corrette/totali per un dominio.
+>> package com.ccnaexamlab.model;
+Pacchetto e commento.
+>> public final class DomainScore {
+Due contatori interi, inizialmente 0.
+>> public DomainScore() { }
+Due costruttori: uno vuoto (contatori a zero) e uno che riceve valori già pronti (usato quando si rilegge lo storico dal file).
+>> public void add(boolean ok) {
+Registra una domanda: il totale cresce sempre di 1 (`total++`), le corrette solo se `ok` è vero.
+>> public void add(DomainScore other) {
+Somma un altro punteggio a questo (usato per l'accuratezza complessiva nello storico). Due metodi con lo stesso nome ma parametri diversi: si chiama *overloading*.
+>> public int getCorrect() { return correct; }
+Getter.
+>> public double getPercent() { return total == 0 ? 0 : 100.0 * correct / total; }
+Percentuale; se il totale è 0 restituisce 0 per evitare una divisione per zero. `100.0` (con il punto) forza un calcolo con la virgola.
+@@ model/Question.java | la domanda d'esame, immutabile, con correzione e mescolamento.
+>> package com.ccnaexamlab.model;
+Pacchetto e import delle collezioni e utilità usate.
+>> /** Una domanda d'esame, immutabile. Si costruisce con {@link Builder}. */
+Inizio della classe `Question`.
+>> private static final String[] NUMBER_WORDS = {
+Array costante con i numeri in inglese, per scrivere "(Choose two.)".
+>> private final String id;
+Tutti i campi della domanda. Sono tutti `final`: dopo la creazione non cambiano più (**immutabilità**). Il significato di ogni campo è in [03 - model](../03-classi-model.md#campi).
+>> private Question(Builder b) {
+Costruttore **privato**: si può chiamare solo dal `Builder`. Copia i valori dal Builder.
+>> this.id = Objects.requireNonNull(b.id, "id");
+`requireNonNull` blocca subito la creazione se id, dominio o tipo mancano (sono indispensabili).
+>> this.text = b.text == null ? "" : b.text;
+I testi facoltativi diventano stringhe vuote se mancano, così il resto del programma non deve mai preoccuparsi di `null`.
+>> this.options = List.copyOf(b.options);
+`List.copyOf` crea una copia **non modificabile** della lista: anche se il Builder venisse riutilizzato, la domanda non cambierebbe.
+>> this.correctOptions = Collections.unmodifiableSet(new java.util.TreeSet<>(b.correctOptions));
+Le risposte corrette in un insieme ordinato e non modificabile (l'ordine serve per mostrare "B, D" e non "D, B").
+>> this.acceptedAnswers = List.copyOf(b.acceptedAnswers);
+Copie non modificabili di risposte accettate (FILL), elementi e soluzioni (DRAG).
+>> List<String> targets = new ArrayList<>();
+Costruisce l'elenco delle categorie DRAG: prima tutte le soluzioni senza ripetizioni (`contains` controlla se ci sono già), poi le categorie extra ("distrattori").
+>> this.dragTargets = List.copyOf(targets);
+Salva le categorie e i campi rimanenti, sempre sostituendo `null` con testo vuoto.
+>> public String getId() { return id; }
+Getter: restituiscono i campi. `hasExhibit` dice se c'è un exhibit non vuoto (`isBlank` = vuoto o solo spazi).
+>> /** Numero di opzioni da selezionare. */
+`requiredSelections`: quante opzioni bisogna scegliere = quante sono corrette.
+>> /** Testo da visualizzare: per le MULTI aggiunge "(Choose N.)" se manca. */
+`getDisplayText`: se la domanda è MULTI e il testo non contiene già "(choose" (confronto in minuscolo), aggiunge "(Choose two.)" usando la parola inglese dall'array o, oltre il sei, la cifra.
+>> /** true se l'utente ha fornito una risposta completa. */
+`isAnswered`: una risposta mancante (`null`) non è completa; poi lo `switch` sceglie la regola in base al tipo: 1 scelta per SINGLE, esattamente N per MULTI, testo non vuoto per FILL, tutti gli elementi abbinati per DRAG. Il `default` serve solo per sicurezza.
+>> /** Correzione "tutto o niente", come all'esame Cisco. */
+`isCorrect` (vedi [algoritmo 2](../08-algoritmi.md#2-correzione-di-una-risposta)). SINGLE e MULTI condividono lo stesso caso: l'insieme scelto deve essere uguale (`equals`) a quello corretto. FILL: normalizza il testo e lo confronta con ogni risposta accettata normalizzata. DRAG: ogni elemento deve avere la categoria giusta; `Objects.equals` gestisce anche il caso "non abbinato" (`null`).
+>> /** Descrizione testuale della risposta corretta. */
+`getCorrectAnswerText` costruisce il testo con uno `StringBuilder` (un "foglio" su cui aggiungere pezzi): lettere separate da virgola per SINGLE/MULTI, alternative unite da "oppure" per FILL, una riga "elemento → categoria" per DRAG. `trim()` toglie l'ultimo a capo.
+>> public static char letter(int index) {
+Converte una posizione in lettera: i caratteri sono numeri, quindi `'A' + 1` è `'B'`. Il `(char)` riconverte il numero in carattere.
+>> /** Normalizza una risposta libera: minuscolo, spazi compattati. */
+`normalize`: toglie gli spazi agli estremi, mette in minuscolo (con `Locale.ROOT` per non dipendere dalla lingua del computer) e sostituisce ogni sequenza di spazi con un solo spazio (`\\s+` è un'espressione regolare che significa "uno o più spazi").
+>> /**
+Commento del metodo `shuffled`.
+>> public Question shuffled(Random random) {
+Crea una copia con le opzioni mescolate (vedi [algoritmo 6](../08-algoritmi.md#6-mescolamento-delle-opzioni)). Se il tipo non è SINGLE/MULTI o il mescolamento non è consentito restituisce la domanda stessa (`this`). Altrimenti crea la lista delle posizioni 0…n-1, la mescola, prepara un Builder con tutti i dati invariati e, per ogni nuova posizione, copia l'opzione originale corrispondente segnando come corretta la nuova posizione se l'originale lo era. Infine costruisce la nuova domanda (passando di nuovo per i controlli di `build`).
+>> @Override
+`toString` restituisce l'ID: utile nei messaggi di debug.
+>> /** Builder mutabile usato dal parser e dal generatore. */
+Inizio della classe interna **`Builder`** (`static` = non ha bisogno di una domanda esistente). È il "modulo da compilare" prima di creare la domanda.
+>> private String id;
+I campi del Builder: gli stessi della domanda, ma **modificabili**. Le liste partono vuote; `shuffleAllowed` parte da `true`. `extraTargets` contiene le categorie distrattrici DRAG.
+>> public Builder id(String v) { this.id = v; return this; }
+Metodi di impostazione: ognuno salva un valore e restituisce il Builder stesso (`return this`), così si possono scrivere a catena: `.id("X").domain(...).text(...)`. `option`, `correct` e `accept` **aggiungono** a una lista invece di sostituire.
+>> public Builder dragPair(String item, String target) {
+Per le DRAG aggiunge insieme un elemento e la sua categoria giusta, così le due liste restano allineate (stessa posizione).
+>> public Builder extraTarget(String v) { this.extraTargets.add(v); return this; }
+Altri metodi di impostazione: categorie extra, spiegazione, riferimento, flag "generata", flag "mescolabile", file di origine.
+>> public String getId() { return id; }
+Permette di leggere l'ID anche prima della costruzione.
+>> /** Valida la coerenza della domanda e la costruisce. */
+`build()`: i controlli di coerenza. Ogni `throw new IllegalStateException(...)` interrompe la costruzione con un messaggio che contiene l'ID: il parser lo mostrerà all'utente.
+>> if (id == null || id.isBlank()) {
+Controlli comuni a tutti i tipi: ID, dominio, tipo e testo devono esserci.
+>> switch (type) {
+Controlli specifici per tipo: SINGLE/MULTI almeno 2 opzioni, ogni risposta deve essere una posizione valida (tra 0 e il numero di opzioni − 1), SINGLE esattamente una risposta, MULTI almeno due; FILL almeno una risposta accettata; DRAG almeno due elementi. `break` esce dallo `switch`.
+>> return new Question(this);
+Tutto in regola: crea la domanda passando sé stesso al costruttore privato.
+>> }
+Chiusura della classe interna `Builder` e della classe `Question`.
+@@ model/ExamSession.java | l'esame in corso.
+>> package com.ccnaexamlab.model;
+Pacchetto, import e commento.
+>> public final class ExamSession {
+Inizio della classe.
+>> private final String title;
+Campi fissi dell'esame: titolo, modalità, domande, e tre array paralleli (risposte, marcature, rivelazioni) lunghi quanto le domande, limite di tempo e possibilità di tornare indietro.
+>> private int elapsedSeconds;
+Campi che cambiano durante l'esame: secondi trascorsi e posizione della domanda corrente.
+>> /**
+Commento del costruttore con il significato dei parametri.
+>> public ExamSession(String title, ExamMode mode, List<Question> questions,
+Costruttore. Rifiuta un esame senza domande (eccezione). Copia la lista domande in versione non modificabile, crea un array di risposte e riempie ogni posizione con una `Response` nuova e vuota. Gli array `boolean` nascono già pieni di `false`.
+>> public String getTitle() { return title; }
+Getter e setter elementari: titolo, modalità, domande, numero di domande (`size`), domanda e risposta in posizione `i`, marcatura e rivelazione, limite di tempo, `isTimed` (vero se il limite è positivo), possibilità di tornare indietro, secondi trascorsi.
+>> public void tick() { elapsedSeconds++; }
+Chiamato dal timer ogni secondo: aggiunge un secondo.
+>> public int getRemainingSeconds() { return Math.max(0, timeLimitSeconds - elapsedSeconds); }
+Secondi rimanenti, mai negativi (`Math.max` prende il più grande tra 0 e la differenza).
+>> public int getCurrent() { return current; }
+Indice della domanda corrente.
+>> public void setCurrent(int i) {
+Cambia domanda corrente solo se l'indice è valido (tra 0 e il numero di domande − 1).
+>> public boolean isAnswered(int i) { return questions.get(i).isAnswered(responses[i]); }
+Chiede alla domanda `i` se la sua risposta è completa.
+>> public int countAnswered() {
+Conta le domande con risposta completa scorrendole tutte.
+>> public int countMarked() {
+Conta le domande marcate (`for (boolean m : marked)` = "per ogni valore dell'array").
+@@ model/ExamResult.java | il risultato di un esame concluso.
+>> package com.ccnaexamlab.model;
+Pacchetto, import (data/ora e mappe) e commento.
+>> public final class ExamResult {
+Inizio della classe.
+>> /** Punteggio minimo (scala 300-1000) considerato di superamento. */
+Costanti della scala: soglia 825, minimo 300, massimo 1000.
+>> private final String title;
+Campi del risultato: titolo, modalità, data, corrette, totale, durata in secondi, punteggi per dominio.
+>> /** La sessione è disponibile solo per l'esame appena svolto (non viene salvata). */
+Riferimento alla sessione per la revisione; vale `null` per i risultati riletti dallo storico.
+>> public ExamResult(String title, ExamMode mode, LocalDateTime date, int correct, int total,
+Costruttore: copia i valori; la mappa per dominio viene ricopiata in una `EnumMap`, che mantiene i domini nell'ordine 1.0 → 6.0.
+>> public String getTitle() { return title; }
+Getter.
+>> public double getPercent() { return total == 0 ? 0 : 100.0 * correct / total; }
+Percentuale di risposte corrette.
+>> /** Punteggio scalato stimato su scala 300-1000. */
+`getScaledScore`: 300 + 700 × (corrette/totale), arrotondato (`Math.round`) e convertito in intero. Con 0 domande restituisce il minimo. Vedi [algoritmo 5](../08-algoritmi.md#5-calcolo-del-punteggio).
+>> public boolean isPassed() { return getScaledScore() >= PASSING_SCORE; }
+Superato se il punteggio raggiunge almeno la soglia.

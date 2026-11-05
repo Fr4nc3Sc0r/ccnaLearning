@@ -1,0 +1,151 @@
+# TITLE: Riga per riga — pacchetto `ui` (2/3): le schede del menu principale
+# INTRO: Questa parte copre le quattro schede della home (`ExamsPanel`, `HistoryPanel`, `ReferencePanel`, `SubnetCalculatorPanel`) e la finestra `CustomExamDialog`. Descrizione generale: [06 - ui](../06-classi-ui.md).
+@@ ui/ExamsPanel.java | la scheda "Esami".
+>> package com.ccnaexamlab.ui;
+Pacchetto e import: servizi, motore d'esame, modello e componenti Swing.
+>> /** Scheda "Esami": esami predefiniti e modalità alternative. */
+Inizio della classe (`extends JPanel`).
+>> private final AppContext ctx;
+Campi: i servizi; `starter`, la funzione ricevuta dalla home per avviare un esame (`Consumer<ExamSession>` = "qualcosa che accetta una sessione"); la lista degli esami predefiniti; i due modelli delle tabelle; la tabella dei preset; la casella "tornare indietro" (selezionata di default).
+>> public ExamsPanel(AppContext ctx, Consumer<ExamSession> starter) {
+Costruttore: salva i parametri e calcola **una volta** la suddivisione negli esami predefiniti.
+>> // --- esami predefiniti
+Tabella dei preset: righe alte 28 pixel, carattere base, intestazione in grassetto, selezione di una sola riga; la prima riga viene selezionata subito se esiste.
+>> JPanel presetPanel = new JPanel(new BorderLayout(0, 6));
+Riquadro "Esami predefiniti": descrizione in alto, tabella al centro (dentro una `JScrollPane` per lo scorrimento).
+>> JPanel presetButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
+I due pulsanti di avvio (Simulazione in blu e Studio), ciascuno chiama `startPreset` con la modalità giusta.
+>> JPanel southPreset = new JPanel(new BorderLayout());
+Parte bassa del riquadro: pulsanti sopra, casella "tornare indietro" sotto.
+>> // --- altre modalità
+Riquadro "Altre modalità": un pannello GridBag in cui `addMode` impila cinque righe pulsante + descrizione. Ogni chiamata restituisce la riga successiva libera. `() -> startFiltered(...)` crea al volo l'azione con i parametri giusti.
+>> JTable domains = new JTable(domainModel);
+Tabella "Copertura e accuratezza per dominio": sola lettura (`setEnabled(false)`), carattere piccolo, prima colonna più larga.
+>> JScrollPane dsp = new JScrollPane(domains);
+La tabella dentro una barra di scorrimento di altezza fissa, preceduta da un titolo, aggiunta al riquadro; poi il riempitivo che spinge tutto in alto.
+>> JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, presetPanel, new JScrollPane(other));
+Divide lo spazio in due colonne ridimensionabili trascinando il separatore (55% a sinistra).
+>> private int addMode(JPanel p, int y, String title, String desc, Runnable action) {
+Crea una riga con un pulsante di larghezza fissa (230×34) a sinistra e la descrizione in grigio che va a capo al centro; la aggiunge alla riga `y` e restituisce `y + 1`.
+>> public void refresh() {
+Chiede alle due tabelle di rileggere i dati (dopo un esame cambiano tentativi, punteggi e accuratezza).
+>> // ------------------------------------------------------------------ azioni
+Separatore: le azioni dei pulsanti.
+>> private void startPreset(ExamMode mode) {
+Avvia l'esame selezionato. Se nessuna riga è selezionata avvisa. In Studio il ritorno indietro è sempre consentito; in Simulazione dipende dalla casella e prima chiede conferma mostrando domande e minuti. Infine chiede alla fabbrica la sessione e la passa a `starter`.
+>> private void startFullRandom() {
+Esame completo casuale: 100 domande (o tutte se la banca è più piccola), Simulazione, minuti suggeriti, regola "indietro" dalla casella.
+>> private void startCustom() {
+Apre la finestra di configurazione (modale: il codice si ferma finché non viene chiusa), legge la configurazione (null = annullato), crea la sessione e, se è vuota, avvisa invece di avviare.
+>> private void startSubnetDrill() {
+Drill: nessun dominio della banca, 0 domande normali, 20 domande di subnetting generate, modalità Studio.
+>> private void startFiltered(QuestionFilter f, String title) {
+Ripasso: tutte le domande che passano il filtro (`Integer.MAX_VALUE` = "nessun limite"), senza pesi, in Studio. Se non ce ne sono, spiega che verranno raccolte svolgendo esami.
+>> // ------------------------------------------------------------------ modelli tabelle
+Separatore: i modelli delle due tabelle.
+>> private final class PresetModel extends AbstractTableModel {
+Modello della tabella dei preset (classe interna: può usare i campi di `ExamsPanel`). L'array `cols` contiene i nomi delle colonne; i tre metodi scritti su una riga dicono alla tabella quante righe ci sono (una per preset), quante colonne e come si chiamano. `@Override` indica che ridefiniscono metodi di `AbstractTableModel`. L'ultimo `@Override` introduce `getValueAt(r, c)`, che la tabella chiama per ogni cella da disegnare.
+>> public Object getValueAt(int r, int c) {
+Per il preset della riga scorre lo storico cercando i risultati con lo stesso titolo: conta i tentativi, tiene il punteggio migliore (`Math.max`) e l'ultimo. Poi restituisce il valore della colonna richiesta: nome, domande, minuti, tentativi, migliore (con ✔ se ≥ 825, trattino se nessuno), ultimo.
+>> private final class DomainModel extends AbstractTableModel {
+Modello della tabella dei domini: una riga per dominio, colonne e nomi come sopra; segue `getValueAt`.
+>> public Object getValueAt(int r, int c) {
+Per il dominio della riga scorre le sue domande e somma: quante sono state viste almeno una volta, quante risposte totali e quante corrette. Restituisce nome, peso, numero di domande, viste e accuratezza (o trattino se mai risposto).
+@@ ui/CustomExamDialog.java | la finestra "Esame personalizzato".
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Finestra di configurazione di un esame personalizzato. */
+`extends JDialog`: finestra secondaria.
+>> private final Map<Domain, JCheckBox> domainBoxes = new EnumMap<>(Domain.class);
+I controlli della finestra: una casella per dominio, campo titolo, menu modalità e filtro, tre **spinner** (campi numerici con frecce; i numeri sono valore iniziale, minimo, massimo, passo), le caselle "pesi" e "indietro", e il risultato (null finché non si conferma).
+>> public CustomExamDialog(Window owner) {
+Costruttore: crea una finestra **modale** (`APPLICATION_MODAL`) legata alla finestra principale.
+>> JPanel domains = new JPanel(new GridLayout(0, 1));
+Colonna dei domini: una casella selezionata per ognuno (con il peso), salvata nella mappa; sotto, i pulsanti "Tutti" e "Nessuno" che selezionano/deselezionano tutte le caselle.
+>> JPanel opts = new JPanel(new GridBagLayout());
+Riquadro opzioni: `addField` aggiunge coppie etichetta + controllo, una per riga.
+>> GridBagConstraints c = new GridBagConstraints();
+Le due caselle finali occupano entrambe le colonne (`gridwidth = 2`), allineate a sinistra.
+>> count.addChangeListener(e -> updateMinutes());
+Quando cambiano numero di domande, subnetting o modalità, ricalcola i minuti. Poi imposta la modalità iniziale a Studio (che a sua volta azzera i minuti).
+>> JPanel center = new JPanel(new BorderLayout(8, 8));
+Composizione: domini a sinistra, opzioni al centro.
+>> JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+Pulsanti "Annulla" (chiude senza risultato) e "Crea esame" (`confirm`).
+>> JPanel root = new JPanel(new BorderLayout());
+Intestazione, contenuto e pulsanti; `pack()` dimensiona la finestra sul contenuto, poi la centra sopra la finestra principale.
+>> private static int addField(JPanel p, int y, String label, java.awt.Component field) {
+Aggiunge l'etichetta nella colonna 0 e il controllo nella colonna 1 (che si allarga), con un po' di margine; restituisce la riga successiva.
+>> private void updateMinutes() {
+In Studio i minuti diventano 0 (illimitato); in Simulazione minuti suggeriti per domande + subnetting. I valori degli spinner sono oggetti `Integer`, da qui il cast `(Integer)`.
+>> private void confirm() {
+Raccoglie i domini selezionati; se non c'è né un dominio né del subnetting avvisa e resta aperta. Altrimenti compila un `ExamConfig` con tutti i valori (titolo vuoto → titolo di default) e chiude la finestra.
+>> /** null se l'utente ha annullato. */
+Restituisce la configurazione a chi ha aperto la finestra.
+@@ ui/HistoryPanel.java | la scheda "Storico e progressi".
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Scheda "Storico e progressi": elenco esami, grafico punteggi, aggregato per dominio. */
+Inizio della classe; `FMT` è il formato di data `05/11/2026 12:08`.
+>> private final AppContext ctx;
+Campi: servizi, modello della tabella, grafico e pannello dell'accuratezza per dominio.
+>> public HistoryPanel(AppContext ctx) {
+Tabella dello storico; `setAutoCreateRowSorter(true)` permette di ordinare cliccando sulle intestazioni.
+>> JPanel tablePanel = new JPanel(new BorderLayout());
+Riquadro "Esami svolti" con la tabella.
+>> JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+Pulsante rosso "Azzera storico e statistiche".
+>> JPanel chartPanel = new JPanel(new BorderLayout());
+Riquadro del grafico e del pannello domini, divisi in verticale; poi tabella a sinistra e la colonna destra, divise in orizzontale. Alla fine un primo `refresh()` riempie tutto.
+>> public void refresh() {
+Aggiorna tabella e grafico; poi somma i punteggi per dominio di tutti gli esami (`forEach` sulla mappa di ogni risultato).
+>> domainPanel.removeAll();
+Ricostruisce il pannello: per ogni dominio un'etichetta e una barra; senza dati la barra dice "nessun dato", altrimenti mostra corrette/totale e percentuale con il colore verde/arancio/rosso. `revalidate` e `repaint` fanno ricalcolare e ridisegnare il pannello.
+>> private void clear() {
+Chiede conferma e, se accettata, cancella storico e statistiche e aggiorna la vista.
+>> private final class HistoryModel extends AbstractTableModel {
+Modello della tabella: colonne e nomi, numero di righe = numero di esami.
+>> public Class<?> getColumnClass(int c) { return c == 4 ? Integer.class : String.class; }
+`getColumnClass`: la colonna Punteggio è dichiarata numerica, così l'ordinamento è numerico (900 dopo 850) e non alfabetico. Il successivo `@Override` introduce `getValueAt`.
+>> public Object getValueAt(int r, int c) {
+Legge lo storico al contrario (`h.size() - 1 - r`) per mostrare i più recenti in alto, e restituisce data formattata, titolo, modalità, corrette/totale, punteggio, esito, durata.
+@@ ui/ReferencePanel.java | la scheda "Cheat sheet".
+>> package com.ccnaexamlab.ui;
+Pacchetto e import (lista, visualizzatore HTML, lettura delle risorse).
+>> /** Scheda "Cheat sheet": schede di ripasso in HTML caricate dalle risorse. */
+Inizio della classe.
+>> private final List<String> files = new ArrayList<>();
+Nomi dei file HTML (stessa posizione dei titoli nella lista) e il visualizzatore.
+>> public ReferencePanel() {
+Costruttore: carica l'indice nei titoli.
+>> JList<String> list = new JList<>(titles);
+Lista dei titoli: quando la selezione cambia (e non è ancora "in movimento", `getValueIsAdjusting`), mostra il file corrispondente.
+>> HTMLEditorKit kit = new HTMLEditorKit();
+Il motore HTML di Swing con le regole di stile CSS del programma: carattere, colori dei titoli, intestazioni di tabella blu, righe separate, codice su sfondo grigio, riquadro `.tip` giallo con bordo arancio. Il visualizzatore non è modificabile.
+>> JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(list), new JScrollPane(pane));
+Lista a sinistra (260 pixel) e pagina a destra; seleziona subito la prima pagina.
+>> private void loadIndex(DefaultListModel<String> titles) {
+Legge `/reference/index.txt`: per ogni riga valida divide su `|` il nome del file e il titolo; righe vuote, commenti o senza `|` vengono saltate. Un errore di lettura viene mostrato come voce della lista.
+>> private void show(String file) {
+Apre la pagina come risorsa e la carica nel visualizzatore (`lines().collect(joining)` unisce tutte le righe); se manca o non si legge, mostra un messaggio. Infine riporta lo scorrimento in cima (`setCaretPosition(0)`).
+@@ ui/SubnetCalculatorPanel.java | la scheda "Calcolatore subnet".
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Calcolatore IPv4: rete, broadcast, range host, maschera, wildcard, binario. */
+Inizio della classe.
+>> private final JTextField input = new JTextField("192.168.10.77/26", 22);
+Campo di input con un esempio precompilato; modello della tabella a due colonne in cui nessuna cella è modificabile (classe anonima che ridefinisce `isCellEditable`); etichetta rossa per gli errori.
+>> public SubnetCalculatorPanel() {
+Riga superiore: istruzioni, campo (premere Invio esegue il calcolo), pulsante "Calcola" ed etichetta degli errori.
+>> JTable table = new JTable(model);
+Tabella con carattere monospazio e prima colonna di larghezza fissa.
+>> JPanel center = new JPanel(new BorderLayout());
+Tabella al centro e un suggerimento sotto; poi composizione del pannello ed esecuzione di un primo calcolo sull'esempio.
+>> private void calculate() {
+Svuota la tabella e l'errore. Se l'input contiene `/` lo divide in IP e prefisso; altrimenti si aspetta "IP maschera" separati da spazi e converte la maschera in prefisso.
+>> long ip = IpUtils.toLong(ipPart);
+Calcola e aggiunge le righe: indirizzo, prefisso e maschera, wildcard, rete, broadcast; primo e ultimo host (per /31 un'indicazione speciale, per /32 nessuna); host utilizzabili e indirizzi totali; magic number solo se il prefisso non è multiplo di 8; classe, privato, binari.
+>> } catch (RuntimeException ex) {
+Qualsiasi errore di input (lanciato da `IpUtils` o dalla conversione dei numeri) viene mostrato in rosso invece di bloccare il programma.
+>> private void add(String k, String v) { model.addRow(new Object[] {k, v}); }
+Aggiunge una riga "campo, valore" alla tabella.

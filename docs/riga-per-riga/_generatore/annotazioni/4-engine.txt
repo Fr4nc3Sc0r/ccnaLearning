@@ -1,0 +1,105 @@
+# TITLE: Riga per riga — pacchetto `engine`
+# INTRO: Il pacchetto `engine` prepara gli esami (`ExamFactory`, con `ExamConfig`, `QuestionFilter` e `PresetExam`) e li corregge (`Scorer`). Descrizione generale: [05 - engine](../05-classi-engine.md).
+@@ engine/QuestionFilter.java | i filtri per scegliere le domande.
+>> package com.ccnaexamlab.engine;
+Pacchetto e commento.
+>> public enum QuestionFilter {
+I cinque filtri, ognuno con l'etichetta mostrata nel menu a tendina della finestra "Esame personalizzato".
+>> private final String label;
+Campo e costruttore dell'etichetta.
+>> @Override
+`toString` restituisce l'etichetta, così il menu a tendina mostra il testo in italiano.
+@@ engine/ExamConfig.java | i parametri di un esame personalizzato.
+>> package com.ccnaexamlab.engine;
+Pacchetto e import.
+>> /** Parametri per la creazione di un esame personalizzato. */
+Inizio della classe.
+>> private String title = "Esame personalizzato";
+I parametri con i loro **valori di default**: titolo, modalità Studio, tutti i domini (`EnumSet.allOf`), 30 domande, nessun filtro, nessuna domanda di subnetting, tempo illimitato (0), ritorno indietro consentito, distribuzione pesata.
+>> public String getTitle() { return title; }
+Coppie getter/setter. I setter hanno lo stesso nome del campo e restituiscono `this` (stile *fluente*), per poterli concatenare. `domains` copia l'insieme ricevuto (`EnumSet.copyOf`) così chi l'ha passato non può modificarlo dopo.
+>> /** 0 = senza limite di tempo. */
+Minuti a disposizione (0 = illimitato).
+>> public boolean isAllowBack() { return allowBack; }
+Ritorno indietro consentito.
+>> /** Se true le domande vengono distribuite secondo i pesi dei domini del blueprint. */
+Distribuzione pesata sì/no.
+@@ engine/PresetExam.java | un esame predefinito (nome + ID delle domande).
+>> package com.ccnaexamlab.engine;
+Pacchetto e import.
+>> /** Un esame predefinito (insieme fisso di domande), come "Esame A", "Esame B"... */
+Inizio della classe.
+>> private final String name;
+Nome e lista degli ID delle domande.
+>> public PresetExam(String name, List<String> questionIds) {
+Costruttore: salva il nome e una copia non modificabile della lista.
+>> public String getName() { return name; }
+Getter e `size()` (numero di domande).
+@@ engine/ExamFactory.java | la costruzione di tutti i tipi di esame.
+>> package com.ccnaexamlab.engine;
+Pacchetto e import: banca, statistiche, generatore, modello e collezioni Java.
+>> /** Costruisce gli esami: predefiniti, casuali e personalizzati. */
+Inizio della classe.
+>> /** Dimensione indicativa di un esame predefinito. */
+Costanti: dimensione degli esami predefiniti (70), minuti per domanda (1,2) e il seme fisso usato per suddividerli sempre allo stesso modo.
+>> private final QuestionBank bank;
+Riferimenti alla banca e alle statistiche, più un generatore casuale **senza seme** (diverso a ogni avvio) per esami casuali e mescolamenti.
+>> public ExamFactory(QuestionBank bank, UserDataStore store) {
+Costruttore: salva i due servizi.
+>> public static int suggestedMinutes(int questions) {
+Minuti consigliati: domande × 1,2, arrotondato per eccesso (`Math.ceil`).
+>> /**
+Commento di `presetExams`.
+>> public List<PresetExam> presetExams() {
+Suddivisione della banca in esami disgiunti ([algoritmo 3](../08-algoritmi.md#3-suddivisione-negli-esami-predefiniti)). `n` = numero di esami (divisione intera, minimo 1); si creano `n` liste vuote.
+>> Random r = new Random(PRESET_SEED);
+Generatore con seme fisso: sequenza "casuale" sempre identica. Per ogni dominio, nell'ordine dell'enum, mescola le sue domande e le distribuisce a giro tra le liste: `next % n` è il resto della divisione, che cicla 0, 1, …, n−1, 0, 1…
+>> List<PresetExam> exams = new ArrayList<>();
+Per ogni lista mescola l'ordine degli ID e crea l'esame chiamandolo "Esame A", "Esame B"… (`'A' + i` convertito in carattere).
+>> public ExamSession fromPreset(PresetExam preset, ExamMode mode, boolean allowBack) {
+Avvia un esame predefinito: per ogni ID recupera la domanda dalla banca (se esiste ancora) e ne mette una copia con le opzioni mescolate. Il tempo è assegnato solo in Simulazione (minuti × 60 = secondi); in Studio vale 0, cioè illimitato.
+>> /** Esame personalizzato. Restituisce null se nessuna domanda soddisfa i criteri. */
+Commento di `custom`.
+>> public ExamSession custom(ExamConfig cfg) {
+Il "pool": tutte le domande dei domini scelti che passano il filtro.
+>> List<Question> chosen = cfg.isWeighted()
+Selezione pesata o casuale a seconda della configurazione (operatore `? :`).
+>> chosen.replaceAll(q -> q.shuffled(random));
+Sostituisce ogni domanda con la sua copia a opzioni mescolate.
+>> if (cfg.getSubnetQuestions() > 0) {
+Aggiunge le domande di subnetting generate, se richieste.
+>> if (chosen.isEmpty()) {
+Nessuna domanda: restituisce `null` e sarà l'interfaccia a mostrare un avviso.
+>> Collections.shuffle(chosen, random);
+Mescola l'ordine finale (così domande generate e domini sono mischiati) e crea la sessione con titolo, modalità, tempo in secondi e regola sul ritorno indietro.
+>> /** Esame costruito su una lista precisa di domande (es. "ripeti gli errori"). */
+`fromQuestions`: crea un esame da una lista data (es. le domande sbagliate), mescolando opzioni e ordine; il ritorno indietro è sempre consentito.
+>> private boolean matches(Question q, QuestionFilter f) {
+Applica il filtro leggendo la statistica della domanda senza crearla (`peekStat`). Ogni `case` restituisce direttamente il risultato: mai vista (nessuna statistica o 0 visualizzazioni), sbagliata almeno una volta, sbagliata l'ultima volta, marcata; `default` (ALL) accetta tutto.
+>> private List<Question> randomPick(List<Question> pool, int count) {
+Selezione casuale: copia il pool, lo mescola e prende i primi `count` elementi (o tutti, se sono meno). `subList` è una "finestra" sulla lista; la si ricopia in una lista nuova e indipendente.
+>> /** Selezione proporzionale ai pesi dei domini; i posti non coperti vengono riempiti a caso. */
+Commento di `weightedPick` ([algoritmo 4](../08-algoritmi.md#4-esame-personalizzato-e-selezione-pesata)).
+>> private List<Question> weightedPick(List<Question> pool, Set<Domain> domains, int count) {
+Raggruppa il pool per dominio: `computeIfAbsent` crea la lista del dominio la prima volta che serve, poi vi aggiunge la domanda.
+>> int totalWeight = 0;
+Somma dei pesi dei soli domini scelti (se scegli due domini da 20 e 25, il totale è 45).
+>> List<Question> chosen = new ArrayList<>();
+Due liste: le domande scelte e quelle "avanzate".
+>> for (Domain d : domains) {
+Per ogni dominio: mescola le sue domande, calcola la quota proporzionale al peso (arrotondata), prende il minimo tra quota e disponibili, mette le prime nelle scelte e le rimanenti nelle avanzate. `getOrDefault` evita errori se il dominio non ha domande.
+>> Collections.shuffle(leftovers, random);
+Riempie gli eventuali posti mancanti con avanzate casuali, fermandosi (`break`) quando si raggiunge il numero richiesto.
+>> while (chosen.size() > count) {
+Se gli arrotondamenti hanno superato il numero richiesto, toglie le ultime domande in eccesso.
+@@ engine/Scorer.java | la correzione dell'esame.
+>> package com.ccnaexamlab.engine;
+Pacchetto e import.
+>> /** Corregge un esame. */
+Inizio della classe; costruttore privato perché contiene solo un metodo statico.
+>> public static ExamResult score(ExamSession s) {
+Prepara una mappa vuota dominio → punteggio e il contatore delle corrette.
+>> for (int i = 0; i < s.size(); i++) {
+Per ogni domanda: chiede se la risposta è corretta, incrementa il contatore se sì, e aggiunge l'esito al punteggio del suo dominio (creandolo se è la prima domanda di quel dominio).
+>> return new ExamResult(s.getTitle(), s.getMode(), LocalDateTime.now(), correct, s.size(),
+Crea il risultato con data e ora attuali (`LocalDateTime.now()`), i conteggi, i secondi impiegati e la sessione (per la revisione).

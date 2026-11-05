@@ -1,0 +1,145 @@
+# TITLE: Riga per riga — pacchetto `ui` (1/3): componenti di base e finestra principale
+# INTRO: Questa parte copre gli "attrezzi" grafici condivisi (`Ui`, `WrapLabel`, `ScrollablePanel`), i due componenti disegnati a mano (`ScoreBar`, `ScoreChart`) e la finestra principale (`MainFrame`, `HomePanel`). Descrizione generale: [06 - ui](../06-classi-ui.md).
+# INTRO:
+# INTRO: Nota ricorrente: ogni classe grafica contiene `private static final long serialVersionUID = 1L;`. I componenti Swing sono "serializzabili" (salvabili come byte) e Java raccomanda di dichiarare un numero di versione; nel programma non si usa questa funzione, la riga serve solo a evitare un avviso del compilatore.
+@@ ui/Ui.java | colori, caratteri e funzioni per creare componenti nello stile del programma.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import dei componenti Swing e AWT usati (pulsanti, etichette, pannelli, bordi, colori, caratteri, vincoli GridBag).
+>> /** Costanti grafiche e piccoli helper Swing condivisi. */
+Inizio della classe `Ui`.
+>> public static final Color HEADER_BG = new Color(0x1F3A5F);
+La **tavolozza** del programma. Ogni colore è scritto in esadecimale RGB (es. `0x1F3A5F`: rosso 1F, verde 3A, blu 5F). Intestazione blu scuro con testo bianco, sottointestazione azzurro chiaro, blu d'accento, verde e verde chiaro (giusto), rosso e rosa (sbagliato), arancio (avviso), nero e grigio chiaro per gli exhibit, bianco per i pannelli.
+>> public static final Font BASE = new Font(Font.SANS_SERIF, Font.PLAIN, 15);
+I **caratteri**: base a 15 punti, la sua versione in grassetto, una più piccola (13), il titolo (22 grassetto), quello enorme del punteggio (44) e il monospazio per exhibit e indirizzi. `deriveFont` crea una variante di un carattere esistente.
+>> private Ui() { }
+Costruttore privato: la classe contiene solo costanti e funzioni statiche.
+>> public static JButton button(String text, Runnable action) {
+Crea un pulsante in grassetto, senza il rettangolo di focus disegnato sul testo, che al clic esegue l'azione ricevuta (`action.run()`).
+>> public static JLabel label(String text, Font font, Color fg) {
+Crea un'etichetta con il carattere indicato e, se fornito, il colore del testo.
+>> public static Border padding(int v, int h) {
+Bordo invisibile che crea margine: `v` pixel sopra/sotto, `h` a sinistra/destra.
+>> public static Border titled(String title) {
+Bordo composto: una cornice grigio-azzurra con titolo, più un margine interno.
+>> /** Pannello "header" scuro con titolo. */
+`header`: pannello blu con il titolo in alto (NORTH) e, se presente, il sottotitolo in basso (SOUTH) in azzurro chiaro.
+>> /** Vincoli GridBag per impilare componenti a tutta larghezza. */
+`row(y)`: prepara le "istruzioni" per il `GridBagLayout`: colonna 0, riga `y`, il componente prende tutto lo spazio orizzontale disponibile (`weightx = 1`, `fill = HORIZONTAL`), è ancorato in alto a sinistra e ha 4 pixel di spazio sopra e sotto.
+>> /** Aggiunge un riempitivo verticale in fondo a un pannello GridBag. */
+`addFiller`: aggiunge un pannello trasparente che "assorbe" tutto lo spazio verticale avanzato (`weighty = 1`), spingendo il contenuto verso l'alto.
+>> public static void setAllFonts(JComponent root, Font f) {
+Imposta un carattere su un componente e, **ricorsivamente** (il metodo chiama sé stesso), su tutti quelli contenuti al suo interno.
+>> public static String pct(double v) {
+Formatta una percentuale senza decimali: `%.0f` è il numero arrotondato, `%%` scrive il simbolo %.
+@@ ui/WrapLabel.java | etichetta multilinea con a capo automatico.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Etichetta multilinea con a-capo automatico (basata su JTextArea non modificabile). */
+La classe **estende** `JTextArea` (un'area di testo) e la trasforma in un'etichetta.
+>> public WrapLabel(String text, Font font) {
+Costruttore: imposta testo (con `super(text)`, cioè il costruttore di `JTextArea`) e carattere, attiva l'a capo per parole (`setLineWrap` + `setWrapStyleWord`), la rende non modificabile e non selezionabile (niente focus, niente evidenziazione), trasparente, senza bordo, con testo nero.
+@@ ui/ScrollablePanel.java | pannello che segue la larghezza della finestra.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Pannello che segue la larghezza del viewport (così il testo va a capo) e scorre in verticale. */
+`implements Scrollable`: la classe promette di fornire i metodi che una `JScrollPane` interroga per sapere come far scorrere il contenuto.
+>> public ScrollablePanel(LayoutManager layout) {
+Costruttore: passa il layout scelto al pannello.
+>> @Override
+`getPreferredScrollableViewportSize`: la dimensione preferita dell'area visibile coincide con quella del pannello.
+>> @Override
+`getScrollableUnitIncrement`: ogni "scatto" (rotella o freccia) scorre di 20 pixel.
+>> @Override
+`getScrollableBlockIncrement`: un "salto di pagina" scorre quasi un'intera schermata (altezza visibile − 40, minimo 40).
+>> @Override
+`getScrollableTracksViewportWidth = true`: il pannello è sempre largo quanto la finestra visibile → niente scorrimento orizzontale e il testo va a capo.
+>> @Override
+`getScrollableTracksViewportHeight = false`: in altezza il pannello può crescere quanto vuole → compare la barra verticale.
+@@ ui/ScoreBar.java | barra grafica del punteggio con la soglia.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import delle classi di disegno (`Graphics2D`, colori, tratti).
+>> /** Barra orizzontale del punteggio (300-1000) con la soglia di superamento. */
+`extends JComponent`: un componente "vuoto" che disegniamo noi.
+>> private final int score;
+Il punteggio da rappresentare.
+>> public ScoreBar(int score) {
+Costruttore: salva il punteggio e chiede uno spazio di 500×54 pixel.
+>> @Override
+`paintComponent` viene chiamato da Swing ogni volta che il componente va ridisegnato.
+>> protected void paintComponent(Graphics g0) {
+Crea una copia del "pennello" (`create()`, così le modifiche non influenzano altri componenti) e attiva l'antialiasing per bordi morbidi. Calcola larghezza utile, margine, posizione e altezza della barra e i limiti della scala.
+>> g.setColor(new Color(0xE4E8EE));
+Disegna lo sfondo grigio della barra (rettangolo con angoli arrotondati).
+>> int fill = (int) ((double) (score - min) / (max - min) * w);
+Calcola quanta parte riempire in proporzione: (punteggio − 300) / 700 × larghezza. Colore verde se superato, rosso altrimenti; almeno 6 pixel per restare visibile anche con 300.
+>> int passX = x0 + (int) ((double) (ExamResult.PASSING_SCORE - min) / (max - min) * w);
+Posizione orizzontale della soglia 825; disegna una linea verticale nera tratteggiata (l'array `{4f, 3f}` = 4 pixel pieni, 3 vuoti).
+>> g.setFont(Ui.SMALL);
+Scrive "Soglia 825" centrata sotto la linea (senza uscire dal bordo destro: `Math.min`) e "300" all'inizio. `stringWidth` misura la larghezza del testo in pixel. `dispose()` libera la copia del pennello.
+@@ ui/ScoreChart.java | grafico a linee dei punteggi nel tempo.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Grafico a linee dell'andamento dei punteggi nel tempo. */
+Inizio della classe (componente disegnato a mano).
+>> private List<ExamResult> results = new ArrayList<>();
+I risultati da disegnare.
+>> public ScoreChart() {
+Costruttore: dimensione preferita 400×220.
+>> public void setResults(List<ExamResult> list) {
+Tiene solo gli ultimi 30 risultati (da `from` alla fine) e chiede di ridisegnare (`repaint`).
+>> @Override
+Inizio di `paintComponent`.
+>> protected void paintComponent(Graphics g0) {
+Pennello con antialiasing, sfondo bianco, margini (sinistra più ampia per i numeri) e dimensioni dell'area del grafico; limiti della scala 300-1000.
+>> g.setFont(Ui.SMALL.deriveFont(11f));
+Griglia: per ogni valore da 300 a 1000 a passi di 100 calcola la coordinata verticale (in Swing la y cresce verso il **basso**, per questo si parte da `top + h` e si sottrae), disegna una linea grigio chiaro e scrive il valore a sinistra.
+>> int passY = top + h - (int) ((double) (ExamResult.PASSING_SCORE - min) / (max - min) * h);
+Linea tratteggiata verde della soglia con l'etichetta "soglia 825".
+>> if (results.isEmpty()) {
+Se non ci sono esami scrive un messaggio al centro e termina.
+>> g.setStroke(new BasicStroke(2.2f));
+Linea più spessa per la spezzata. Per ogni risultato calcola la x (distribuendo i punti su tutta la larghezza; con un solo punto lo mette al centro) e la y; se non è il primo punto traccia il segmento blu dal punto precedente; disegna un pallino verde o rosso. Ricorda il punto per il segmento successivo.
+>> g.setColor(Color.GRAY);
+Didascalia "Ultimi N esami" in basso a destra e rilascio del pennello.
+@@ ui/MainFrame.java | la finestra principale e la navigazione tra le schermate.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Finestra principale: alterna menu, esame in corso e risultati. */
+`extends JFrame`: è una finestra.
+>> private final AppContext ctx;
+Campi: i servizi, il `CardLayout` (il "mazzo di carte"), il pannello `root` che lo usa, la home e i riferimenti all'esame e al report correnti (possono essere `null`).
+>> public MainFrame(AppContext ctx) {
+Costruttore: titolo della finestra, creazione della home (le passa `this::startExam`, cioè "quando vuoi avviare un esame, chiama il mio `startExam`"), aggiunta come prima carta, menu.
+>> setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+La X della finestra non chiude direttamente: un *listener* intercetta la chiusura e chiama `exit()`, che chiede conferma se c'è un esame in corso. Imposta dimensioni minime e iniziali e centra la finestra sullo schermo (`setLocationRelativeTo(null)`).
+>> private JMenuBar buildMenu() {
+Costruisce la barra dei menu. **File**: "Menu principale" (torna alla home, con conferma se c'è un esame), "Cartella dati utente…" (messaggio con i percorsi), separatore, "Esci".
+>> JMenu help = new JMenu("Aiuto");
+Menu **Aiuto**: "Guida rapida" (mostra il testo `HELP`) e "Informazioni" (nome, versione, numero di domande, nota sui marchi).
+>> private static final String HELP =
+Il testo della guida rapida: modalità, scorciatoie, report e metodo consigliato. I pezzi sono uniti con `+`; `\n` è l'a capo.
+>> // ------------------------------------------------------------------ flussi
+Separatore: i metodi che spostano l'utente tra le schermate (vedi [algoritmo 10](../08-algoritmi.md#10-navigazione-tra-le-schermate-mainframe)).
+>> public void startExam(ExamSession session) {
+Se la sessione è `null` (esame vuoto) non fa nulla. Altrimenti crea il pannello d'esame passando `this::finishExam` come azione di consegna, lo aggiunge al mazzo con il nome "exam" e lo mostra.
+>> private void finishExam(ExamSession session) {
+Consegna: corregge, salva, rimuove la carta dell'esame, sostituisce l'eventuale report precedente con uno nuovo, lo mostra e aggiorna la home.
+>> private void retryWrong(List<Question> wrong) {
+Avvia un esame Studio "Ripasso errori" con le domande indicate.
+>> private void showHome() {
+Torna alla home: se c'è un esame lo interrompe (`abort` ferma il timer) e lo rimuove; aggiorna e mostra la home.
+>> private boolean confirmAbort() {
+Finestra di conferma Sì/No; restituisce vero se l'utente accetta di abbandonare.
+>> private void exit() {
+Se c'è un esame e l'utente non conferma, non fa nulla; altrimenti chiude la finestra (`dispose`) e termina il programma.
+@@ ui/HomePanel.java | il menu principale a schede.
+>> package com.ccnaexamlab.ui;
+Pacchetto e import.
+>> /** Menu principale a schede. */
+Inizio della classe.
+>> private final ExamsPanel exams;
+Riferimenti alle due schede che vanno aggiornate dopo ogni esame.
+>> public HomePanel(AppContext ctx, Consumer<ExamSession> starter) {
+Costruttore: crea le schede Esami e Storico; in alto l'intestazione con nome e numero di domande; al centro un `JTabbedPane` con quattro schede (le ultime due non hanno bisogno di aggiornamenti e vengono create al volo).
+>> public void refresh() {
+Aggiorna le tabelle degli esami e lo storico.
