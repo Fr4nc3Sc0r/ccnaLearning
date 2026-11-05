@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 
 /** Una domanda d'esame, immutabile. Si costruisce con {@link Builder}. */
@@ -29,6 +30,7 @@ public final class Question {
     private final String explanation;
     private final String reference;
     private final boolean generated;
+    private final boolean shuffleAllowed;
     private final String source;
 
     private Question(Builder b) {
@@ -38,7 +40,7 @@ public final class Question {
         this.text = b.text == null ? "" : b.text;
         this.exhibit = b.exhibit == null ? "" : b.exhibit;
         this.options = List.copyOf(b.options);
-        this.correctOptions = Collections.unmodifiableSet(new LinkedHashSet<>(b.correctOptions));
+        this.correctOptions = Collections.unmodifiableSet(new java.util.TreeSet<>(b.correctOptions));
         this.acceptedAnswers = List.copyOf(b.acceptedAnswers);
         this.dragItems = List.copyOf(b.dragItems);
         this.dragSolution = List.copyOf(b.dragSolution);
@@ -57,6 +59,7 @@ public final class Question {
         this.explanation = b.explanation == null ? "" : b.explanation;
         this.reference = b.reference == null ? "" : b.reference;
         this.generated = b.generated;
+        this.shuffleAllowed = b.shuffleAllowed;
         this.source = b.source == null ? "" : b.source;
     }
 
@@ -75,6 +78,8 @@ public final class Question {
     public String getExplanation() { return explanation; }
     public String getReference() { return reference; }
     public boolean isGenerated() { return generated; }
+    /** false se l'ordine delle opzioni è significativo (campo "shuffle: no"). */
+    public boolean isShuffleAllowed() { return shuffleAllowed; }
     public String getSource() { return source; }
 
     /** Numero di opzioni da selezionare. */
@@ -177,6 +182,34 @@ public final class Question {
         return s.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
     }
 
+    /**
+     * Restituisce una copia della domanda con le opzioni (SINGLE/MULTI) in ordine casuale,
+     * così la posizione della risposta corretta non si può memorizzare. Le altre tipologie,
+     * o le domande con "shuffle: no", vengono restituite invariate.
+     */
+    public Question shuffled(Random random) {
+        if ((type != QuestionType.SINGLE && type != QuestionType.MULTI) || !shuffleAllowed) {
+            return this;
+        }
+        List<Integer> perm = new ArrayList<>();
+        for (int i = 0; i < options.size(); i++) {
+            perm.add(i);
+        }
+        Collections.shuffle(perm, random);
+        Builder b = new Builder()
+            .id(id).domain(domain).type(type).text(text).exhibit(exhibit)
+            .explanation(explanation).reference(reference).generated(generated)
+            .shuffleAllowed(shuffleAllowed).source(source);
+        for (int newIdx = 0; newIdx < perm.size(); newIdx++) {
+            int oldIdx = perm.get(newIdx);
+            b.option(options.get(oldIdx));
+            if (correctOptions.contains(oldIdx)) {
+                b.correct(newIdx);
+            }
+        }
+        return b.build();
+    }
+
     @Override
     public String toString() { return id; }
 
@@ -196,6 +229,7 @@ public final class Question {
         private String explanation;
         private String reference;
         private boolean generated;
+        private boolean shuffleAllowed = true;
         private String source;
 
         public Builder id(String v) { this.id = v; return this; }
@@ -215,6 +249,7 @@ public final class Question {
         public Builder explanation(String v) { this.explanation = v; return this; }
         public Builder reference(String v) { this.reference = v; return this; }
         public Builder generated(boolean v) { this.generated = v; return this; }
+        public Builder shuffleAllowed(boolean v) { this.shuffleAllowed = v; return this; }
         public Builder source(String v) { this.source = v; return this; }
 
         public String getId() { return id; }

@@ -21,7 +21,7 @@ import java.util.Set;
 public final class ExamFactory {
 
     /** Dimensione indicativa di un esame predefinito. */
-    public static final int PRESET_SIZE = 45;
+    public static final int PRESET_SIZE = 70;
     /** Minuti per domanda (l'esame reale: ~120 minuti per ~100 domande). */
     public static final double MINUTES_PER_QUESTION = 1.2;
     private static final long PRESET_SEED = 200301L;
@@ -73,7 +73,7 @@ public final class ExamFactory {
         for (String id : preset.getQuestionIds()) {
             Question q = bank.get(id);
             if (q != null) {
-                qs.add(q);
+                qs.add(q.shuffled(random));
             }
         }
         int time = mode == ExamMode.SIMULATION ? suggestedMinutes(qs.size()) * 60 : 0;
@@ -91,6 +91,7 @@ public final class ExamFactory {
         List<Question> chosen = cfg.isWeighted()
             ? weightedPick(pool, cfg.getDomains(), cfg.getQuestionCount())
             : randomPick(pool, cfg.getQuestionCount());
+        chosen.replaceAll(q -> q.shuffled(random));
         if (cfg.getSubnetQuestions() > 0) {
             chosen.addAll(new SubnetQuestionGenerator(random).generate(cfg.getSubnetQuestions()));
         }
@@ -103,7 +104,10 @@ public final class ExamFactory {
 
     /** Esame costruito su una lista precisa di domande (es. "ripeti gli errori"). */
     public ExamSession fromQuestions(String title, ExamMode mode, List<Question> questions) {
-        List<Question> qs = new ArrayList<>(questions);
+        List<Question> qs = new ArrayList<>();
+        for (Question q : questions) {
+            qs.add(q.shuffled(random));
+        }
         Collections.shuffle(qs, random);
         int time = mode == ExamMode.SIMULATION ? suggestedMinutes(qs.size()) * 60 : 0;
         return new ExamSession(title, mode, qs, time, true);

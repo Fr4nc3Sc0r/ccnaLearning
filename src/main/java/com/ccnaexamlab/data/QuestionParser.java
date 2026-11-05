@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 public final class QuestionParser {
 
     private static final Pattern KEY = Pattern.compile(
-        "^(id|domain|type|text|exhibit|options|answer|explanation|reference|items|targets)\\s*:\\s?(.*)$");
+        "^(id|domain|type|text|exhibit|options|answer|explanation|reference|items|targets|shuffle)\\s*:\\s?(.*)$");
     private static final Pattern OPTION = Pattern.compile("^\\s*([A-Za-z])[).]\\s+(.*)$");
 
     private QuestionParser() { }
@@ -127,6 +127,8 @@ public final class QuestionParser {
         b.exhibit(Text.trimBlock(raw(f, "exhibit")));
         b.explanation(Text.trimBlock(raw(f, "explanation")));
         b.reference(value(f, "reference"));
+        String shuffle = value(f, "shuffle").toLowerCase(Locale.ROOT);
+        b.shuffleAllowed(!(shuffle.equals("no") || shuffle.equals("false")));
 
         String answer = value(f, "answer");
         switch (type) {

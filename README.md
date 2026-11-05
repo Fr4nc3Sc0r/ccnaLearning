@@ -15,7 +15,8 @@ punteggio per dominio.
 |---|---|
 | **Modalità Simulazione** | Tempo limite (~1,2 min/domanda, come all'esame reale). Risposte e spiegazioni visibili solo alla consegna. Puoi disattivare il ritorno alle domande precedenti, come all'esame Cisco. |
 | **Modalità Studio** | Senza limite di tempo. Con "Mostra risposta" (Ctrl+R) vedi correzione, spiegazione in italiano e riferimento all'exam topic. |
-| **Esami predefiniti** | Set fissi di domande (Esame A, B, …) distribuite secondo i pesi ufficiali dei domini. |
+| **Esami predefiniti** | 4 esami (A-D) da circa 75 domande ciascuno, con domande diverse tra un esame e l'altro e distribuite secondo i pesi ufficiali dei domini. |
+| **Opzioni mescolate** | A ogni esame l'ordine delle risposte cambia, così non si memorizza la lettera giusta ma il concetto. |
 | **Esame personalizzato** | Scegli domini, numero di domande, filtro (tutte / mai viste / sbagliate / marcate), tempo e modalità. |
 | **Generatore di subnetting** | Esercizi IPv4 sempre nuovi (rete, broadcast, host, maschera, host valido) con soluzione passo-passo col metodo del *magic number*. |
 | **Tipi di domanda** | Scelta singola, scelta multipla ("Choose two"), drag and drop (abbinamento), risposta aperta. Exhibit con output CLI, JSON e così via. |
@@ -37,12 +38,13 @@ reale; le spiegazioni sono in italiano.
 
 | Dominio | Peso | Domande |
 |---|---|---|
-| 1.0 Network Fundamentals | 20% | 24 |
-| 2.0 Network Access | 20% | 20 |
-| 3.0 IP Connectivity | 25% | 21 |
-| 4.0 IP Services | 10% | 14 |
-| 5.0 Security Fundamentals | 15% | 15 |
-| 6.0 Automation and Programmability | 10% | 13 |
+| 1.0 Network Fundamentals | 20% | 63 |
+| 2.0 Network Access | 20% | 55 |
+| 3.0 IP Connectivity | 25% | 61 |
+| 4.0 IP Services | 10% | 39 |
+| 5.0 Security Fundamentals | 15% | 45 |
+| 6.0 Automation and Programmability | 10% | 35 |
+| **Totale** | | **298** |
 
 A queste si aggiungono le domande di subnetting generate senza limiti.
 
@@ -135,6 +137,7 @@ answer: B                  # MULTI: "A, C"   FILL: "risposta1 | risposta2"
 explanation:
 Spiegazione. `codice` e **grassetto** sono ammessi.
 reference: Exam topic 1.6
+shuffle: no               # facoltativo: non mescolare le opzioni
 [/Q]
 ```
 
