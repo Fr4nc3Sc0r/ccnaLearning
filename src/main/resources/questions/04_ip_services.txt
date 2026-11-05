@@ -1,0 +1,263 @@
+# =====================================================================
+# Dominio 4.0 - IP Services (10%)
+# =====================================================================
+
+[Q]
+id: IPS-001
+domain: 4
+type: SINGLE
+text:
+Refer to the exhibit. In NAT terminology, what is 203.0.113.5?
+exhibit:
+R1#show ip nat translations
+Pro Inside global      Inside local       Outside local      Outside global
+tcp 203.0.113.5:1025   10.1.1.10:51000    198.51.100.20:443  198.51.100.20:443
+options:
+A) Inside local
+B) Inside global
+C) Outside local
+D) Outside global
+answer: B
+explanation:
+- Inside local: indirizzo reale dell'host interno (10.1.1.10, privato)
+- Inside global: come l'host interno appare all'esterno (203.0.113.5)
+- Outside local / outside global: indirizzo dell'host esterno come visto dall'interno / come è realmente (qui coincidono: 198.51.100.20)
+Trucco: "inside/outside" = DOVE si trova l'host; "local/global" = DA DOVE lo si guarda.
+reference: Exam topic 4.1 - Configure and verify inside source NAT using static and pools
+[/Q]
+
+[Q]
+id: IPS-002
+domain: 4
+type: SINGLE
+text:
+Which command configures PAT so that all inside hosts permitted by ACL 1 share the IP address of interface GigabitEthernet0/0?
+options:
+A) ip nat inside source static 10.1.1.0 interface GigabitEthernet0/0
+B) ip nat outside source list 1 interface GigabitEthernet0/0
+C) ip nat inside source list 1 interface GigabitEthernet0/0 overload
+D) ip nat pool PAT interface GigabitEthernet0/0 overload
+answer: C
+explanation:
+La parola chiave "overload" abilita PAT (NAT many-to-one con numeri di porta). Configurazione completa:
+access-list 1 permit 10.1.1.0 0.0.0.255
+interface g0/1 → ip nat inside
+interface g0/0 → ip nat outside
+ip nat inside source list 1 interface g0/0 overload
+Errore tipico all'esame: dimenticare "ip nat inside/outside" sulle interfacce.
+reference: Exam topic 4.1 - NAT/PAT
+[/Q]
+
+[Q]
+id: IPS-003
+domain: 4
+type: SINGLE
+text:
+Which statement about NTP stratum is true?
+options:
+A) A higher stratum value indicates a more accurate time source.
+B) Stratum 0 devices are reference clocks such as atomic or GPS clocks.
+C) A Cisco router configured with "ntp master" always becomes stratum 0.
+D) Stratum 16 is the most accurate stratum.
+answer: B
+explanation:
+Lo stratum indica la distanza dalla sorgente di riferimento: stratum 0 = orologio di riferimento (GPS, atomico), stratum 1 = server collegato direttamente a esso, e così via. Più basso è il valore, più affidabile è la sorgente. Stratum 16 = non sincronizzato.
+"ntp master [stratum]" rende il router sorgente autorevole (default stratum 8); "ntp server X" lo rende client.
+reference: Exam topic 4.2 - Configure and verify NTP operating in a client and server mode
+[/Q]
+
+[Q]
+id: IPS-004
+domain: 4
+type: DRAG
+text:
+Place the DHCPv4 messages in the order in which they are exchanged when a client obtains an address.
+items:
+DHCPDISCOVER => Step 1
+DHCPOFFER => Step 2
+DHCPREQUEST => Step 3
+DHCPACK => Step 4
+explanation:
+Processo DORA: Discover (client → broadcast), Offer (server), Request (client, broadcast per informare tutti i server dell'offerta scelta), Acknowledge (server).
+DHCP usa UDP 67 (server) e 68 (client). Al rinnovo (50% del lease, T1) il client invia direttamente un Request unicast.
+reference: Exam topic 4.3 / 4.6 - DHCP client and relay
+[/Q]
+
+[Q]
+id: IPS-005
+domain: 4
+type: SINGLE
+text:
+DHCP clients in VLAN 10 must obtain addresses from a DHCP server located in a remote subnet. Where should the "ip helper-address" command be configured?
+options:
+A) On the DHCP server interface
+B) Globally on the router
+C) On the router interface (or SVI) that acts as the default gateway for VLAN 10
+D) On the access switch port connected to the clients
+answer: C
+explanation:
+I DHCPDISCOVER sono broadcast e i router non inoltrano i broadcast. "ip helper-address <IP server>" sull'interfaccia che riceve i broadcast dei client (il loro gateway) li trasforma in unicast verso il server (DHCP relay agent), inserendo nel campo giaddr l'IP dell'interfaccia: così il server sa da quale pool assegnare l'indirizzo.
+reference: Exam topic 4.6 - Configure and verify DHCP client and relay
+[/Q]
+
+[Q]
+id: IPS-006
+domain: 4
+type: SINGLE
+text:
+Which SNMP version provides authentication and encryption of messages?
+options:
+A) SNMPv1
+B) SNMPv2c
+C) SNMPv3
+D) All versions when community strings are used
+answer: C
+explanation:
+SNMPv1/v2c usano community string in chiaro. SNMPv3 introduce utenti e livelli di sicurezza: noAuthNoPriv, authNoPriv (autenticazione con HMAC), authPriv (autenticazione + cifratura).
+Componenti: manager (NMS), agent, MIB. Messaggi: Get, Set, Trap (non confermato), Inform (confermato). Porte: UDP 161 (query all'agent), UDP 162 (trap/inform verso il manager).
+reference: Exam topic 4.4 - Explain the function of SNMP in network operations
+[/Q]
+
+[Q]
+id: IPS-007
+domain: 4
+type: DRAG
+text:
+Match each syslog severity level name to its numeric level.
+items:
+Emergency => 0
+Critical => 2
+Error => 3
+Warning => 4
+Notification => 5
+Informational => 6
+Debugging => 7
+targets: 1 | 8
+explanation:
+Livelli syslog: 0 Emergency, 1 Alert, 2 Critical, 3 Error, 4 Warning, 5 Notification, 6 Informational, 7 Debugging.
+Mnemonico: "Every Awesome Cisco Engineer Will Need Ice cream Daily".
+"logging trap 4" invia al server syslog i livelli da 0 a 4 (il livello indicato e tutti i più gravi).
+reference: Exam topic 4.5 - Describe the use of syslog features including facilities and levels
+[/Q]
+
+[Q]
+id: IPS-008
+domain: 4
+type: FILL
+text:
+What decimal DSCP value corresponds to Expedited Forwarding (EF), commonly used for voice traffic? (Enter a number.)
+answer: 46
+explanation:
+EF = DSCP 46 (binario 101110), per traffico voce a bassa latenza. Altri valori: CS0/default = 0, AF41 = 34 (video), CS3/AF31 = 24/26 (signaling), CS6 = 48 (routing).
+Formula AFxy: DSCP = 8x + 2y (es. AF41 = 32 + 2 = 34).
+reference: Exam topic 4.7 - Explain the forwarding per-hop behavior (PHB) for QoS (marking)
+[/Q]
+
+[Q]
+id: IPS-009
+domain: 4
+type: SINGLE
+text:
+Which queuing mechanism provides a strict-priority queue for delay-sensitive traffic such as voice, while other classes receive guaranteed bandwidth?
+options:
+A) FIFO
+B) Weighted Random Early Detection (WRED)
+C) Low Latency Queuing (LLQ)
+D) Policing
+answer: C
+explanation:
+LLQ = CBWFQ (code con banda garantita per classe) + una coda a priorità stretta (servita sempre per prima, ma limitata da un policer per evitare starvation delle altre code). WRED è congestion avoidance (scarta in modo casuale prima che la coda sia piena per evitare la TCP global synchronization).
+reference: Exam topic 4.7 - QoS (queuing, congestion)
+[/Q]
+
+[Q]
+id: IPS-010
+domain: 4
+type: MULTI
+text:
+Which two commands are prerequisites before the "crypto key generate rsa" command can be used to enable SSH on a Cisco router?
+options:
+A) hostname R1 (a non-default hostname)
+B) ip domain-name example.com
+C) transport input ssh
+D) login local
+E) ip ssh version 2
+answer: A, B
+explanation:
+La chiave RSA prende il nome da hostname.domain-name, quindi servono un hostname diverso da "Router" e "ip domain-name". Configurazione SSH completa:
+hostname R1 / ip domain-name example.com / crypto key generate rsa modulus 2048 / username admin secret ... / ip ssh version 2 / line vty 0 4 → login local + transport input ssh.
+Per SSHv2 servono chiavi di almeno 768 bit.
+reference: Exam topic 4.8 - Configure network devices for remote access using SSH
+[/Q]
+
+[Q]
+id: IPS-011
+domain: 4
+type: MULTI
+text:
+Which two statements about TFTP compared to FTP are true?
+options:
+A) TFTP uses UDP port 69.
+B) TFTP uses TCP ports 20 and 21.
+C) TFTP does not support user authentication.
+D) TFTP supports directory listing.
+E) TFTP encrypts all transferred data.
+answer: A, C
+explanation:
+TFTP: UDP 69, nessuna autenticazione né listing delle directory, molto semplice (usato per IOS e configurazioni). FTP: TCP 21 (controllo) e 20 (dati in modalità attiva), richiede username/password. Nessuno dei due cifra: per trasferimenti sicuri si usano SCP o SFTP.
+reference: Exam topic 4.9 - Describe the capabilities and functions of TFTP/FTP in the network
+[/Q]
+
+[Q]
+id: IPS-012
+domain: 4
+type: SINGLE
+text:
+Which DNS record type maps a hostname to an IPv6 address?
+options:
+A) A
+B) AAAA
+C) CNAME
+D) PTR
+answer: B
+explanation:
+A = nome → IPv4; AAAA ("quad A") = nome → IPv6; CNAME = alias; PTR = IP → nome (reverse lookup); MX = server di posta; NS = name server.
+DNS usa UDP 53 per le query e TCP 53 per zone transfer e risposte grandi. Su IOS: "ip name-server" e "ip domain-lookup".
+reference: Exam topic 4.3 - Explain the role of DHCP and DNS within the network
+[/Q]
+
+[Q]
+id: IPS-013
+domain: 4
+type: MULTI
+text:
+Which two statements compare traffic shaping and traffic policing correctly?
+options:
+A) Shaping buffers excess traffic and sends it later.
+B) Policing buffers excess traffic to smooth bursts.
+C) Policing drops or re-marks traffic that exceeds the configured rate.
+D) Shaping is typically applied inbound on an interface.
+E) Shaping never introduces delay.
+answer: A, C
+explanation:
+Shaping: mette in coda il traffico eccedente (introduce ritardo, nessuna perdita se il buffer basta), usato in uscita verso un provider con CIR inferiore alla velocità fisica.
+Policing: scarta o rimarca il traffico eccedente, nessun buffer (nessun ritardo), applicabile in ingresso o uscita; tipico dei service provider in ingresso.
+reference: Exam topic 4.7 - QoS (policing, shaping)
+[/Q]
+
+[Q]
+id: IPS-014
+domain: 4
+type: SINGLE
+text:
+Which command configures a static NAT translation so that inside server 10.1.1.10 is reachable from the Internet as 203.0.113.10?
+options:
+A) ip nat inside source static 10.1.1.10 203.0.113.10
+B) ip nat inside source static 203.0.113.10 10.1.1.10
+C) ip nat outside source static 10.1.1.10 203.0.113.10
+D) ip nat inside source list 1 pool SERVER
+answer: A
+explanation:
+Sintassi: "ip nat inside source static <inside local> <inside global>". Il NAT statico è una mappatura 1:1 permanente, bidirezionale: permette connessioni avviate dall'esterno verso il server interno.
+reference: Exam topic 4.1 - Static NAT
+[/Q]

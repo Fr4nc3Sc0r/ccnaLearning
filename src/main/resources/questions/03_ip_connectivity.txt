@@ -1,0 +1,412 @@
+# =====================================================================
+# Dominio 3.0 - IP Connectivity (25%)
+# =====================================================================
+
+[Q]
+id: IPC-001
+domain: 3
+type: SINGLE
+text:
+Refer to the exhibit. R1 receives a packet destined to 10.1.1.70. Which next hop does R1 use to forward the packet?
+exhibit:
+R1#show ip route
+Gateway of last resort is 203.0.113.1 to network 0.0.0.0
+
+S*    0.0.0.0/0 [1/0] via 203.0.113.1
+      10.0.0.0/8 is variably subnetted, 4 subnets, 4 masks
+O        10.1.0.0/16 [110/20] via 192.168.1.2, 00:12:10, GigabitEthernet0/1
+D        10.1.1.0/24 [90/30720] via 192.168.2.2, 00:05:33, GigabitEthernet0/2
+S        10.1.1.0/25 [1/0] via 192.168.4.2
+R        10.1.1.64/26 [120/2] via 192.168.3.2, 00:00:12, GigabitEthernet0/3
+options:
+A) 192.168.1.2
+B) 192.168.2.2
+C) 192.168.3.2
+D) 192.168.4.2
+answer: C
+explanation:
+Il router sceglie SEMPRE la corrispondenza più specifica (longest prefix match), indipendentemente da AD e metrica.
+10.1.1.70 corrisponde a: /16, /24, /25 (0-127) e /26 (64-127). Il prefisso più lungo è 10.1.1.64/26 → next hop 192.168.3.2 via RIP.
+AD e metrica servono solo a scegliere tra route verso lo STESSO prefisso con la stessa lunghezza.
+reference: Exam topic 3.2 - Determine how a router makes a forwarding decision by default (longest prefix match)
+[/Q]
+
+[Q]
+id: IPC-002
+domain: 3
+type: DRAG
+text:
+Match each route source to its default administrative distance on a Cisco router.
+items:
+Directly connected interface => 0
+Static route => 1
+External BGP (eBGP) => 20
+Internal EIGRP => 90
+OSPF => 110
+RIP => 120
+targets: 100 | 200
+explanation:
+AD di default da memorizzare: connected 0, static 1, eBGP 20, EIGRP interno 90, OSPF 110, IS-IS 115, RIP 120, EIGRP esterno 170, iBGP 200, sconosciuto 255 (route mai installata).
+Più bassa è l'AD, più la fonte è considerata affidabile.
+reference: Exam topic 3.2.b - Administrative distance
+[/Q]
+
+[Q]
+id: IPC-003
+domain: 3
+type: SINGLE
+text:
+Refer to the exhibit. What does the value 20 represent?
+exhibit:
+O    10.1.0.0/16 [110/20] via 192.168.1.2, 00:12:10, GigabitEthernet0/1
+options:
+A) The administrative distance
+B) The metric (OSPF cost) of the route
+C) The number of hops to the destination
+D) The age of the route in seconds
+answer: B
+explanation:
+Nel formato [AD/metrica]: 110 è l'administrative distance di OSPF, 20 è il costo OSPF totale verso la rete. "00:12:10" indica da quanto tempo la route è stata appresa; "O" è il codice della fonte (OSPF intra-area).
+reference: Exam topic 3.1 - Interpret the components of a routing table
+[/Q]
+
+[Q]
+id: IPC-004
+domain: 3
+type: SINGLE
+text:
+A router learns a default route through OSPF. The network engineer wants to configure a backup default route to 198.51.100.1 that is used only if the OSPF route is lost. Which command should be used?
+options:
+A) ip route 0.0.0.0 0.0.0.0 198.51.100.1
+B) ip route 0.0.0.0 0.0.0.0 198.51.100.1 100
+C) ip route 0.0.0.0 0.0.0.0 198.51.100.1 115
+D) ip route 0.0.0.0 255.255.255.255 198.51.100.1 130
+answer: C
+explanation:
+Una floating static route ha un'AD maggiore di quella della route primaria: deve essere > 110 (OSPF) per restare inattiva finché la route OSPF esiste. Solo l'opzione C usa un valore valido (115) con la maschera corretta.
+A (AD 1) e B (AD 100) prevarrebbero su OSPF; D ha la maschera errata (255.255.255.255 indicherebbe un host route, non una default).
+reference: Exam topic 3.3.d - Floating static
+[/Q]
+
+[Q]
+id: IPC-005
+domain: 3
+type: MULTI
+text:
+Which two parameters must match for two OSPFv2 routers on the same segment to become neighbors?
+options:
+A) OSPF process ID
+B) Router ID
+C) Area ID
+D) Hello and dead intervals
+E) Interface priority
+answer: C, D
+explanation:
+Devono coincidere: area ID, subnet e maschera, hello/dead timer, autenticazione, flag stub area e (per raggiungere lo stato FULL) MTU.
+NON devono coincidere: process ID (ha valore solo locale) e priorità. Il router ID deve essere UNICO, non uguale.
+reference: Exam topic 3.4.a - Neighbor adjacencies
+[/Q]
+
+[Q]
+id: IPC-006
+domain: 3
+type: SINGLE
+text:
+Refer to the exhibit. Four routers are connected to the same Ethernet segment and the OSPF processes start simultaneously. Which router becomes the DR?
+exhibit:
+Router   OSPF priority   Router ID
+R1       1               10.0.0.4
+R2       10              1.1.1.1
+R3       10              2.2.2.2
+R4       0               9.9.9.9
+options:
+A) R1
+B) R2
+C) R3
+D) R4
+answer: C
+explanation:
+Elezione DR/BDR: vince la priorità più ALTA; a parità, il router ID più ALTO. R2 e R3 hanno priorità 10 → vince R3 (RID 2.2.2.2 > 1.1.1.1) che diventa DR; R2 diventa BDR.
+Priorità 0 = il router non può mai diventare DR/BDR (R4). L'elezione non è preemptive: un router con priorità più alta che si aggiunge dopo NON sostituisce il DR esistente.
+reference: Exam topic 3.4.c - DR/BDR selection
+[/Q]
+
+[Q]
+id: IPC-007
+domain: 3
+type: SINGLE
+text:
+No "router-id" command is configured on an OSPF router. The router has a loopback 0 with IP 192.168.255.1 and physical interfaces with IPs 10.10.10.1 and 172.16.1.1, all up. Which router ID is selected?
+options:
+A) 10.10.10.1
+B) 172.16.1.1
+C) 192.168.255.1
+D) 0.0.0.0
+answer: C
+explanation:
+Ordine di selezione del router ID OSPF:
+1) Comando "router-id" configurato manualmente
+2) IP più alto tra le interfacce loopback attive
+3) IP più alto tra le interfacce fisiche attive
+Qui esiste una loopback, quindi si usa 192.168.255.1 (anche se un'interfaccia fisica avesse un IP più alto). Dopo una modifica serve "clear ip ospf process" per applicare il nuovo RID.
+reference: Exam topic 3.4.d - Router ID
+[/Q]
+
+[Q]
+id: IPC-008
+domain: 3
+type: SINGLE
+text:
+What is the effect of configuring "ip ospf network point-to-point" on the Ethernet interfaces of two directly connected routers?
+options:
+A) The routers elect a DR and BDR faster.
+B) No DR/BDR election takes place on the link.
+C) The OSPF hello timer changes to 30 seconds.
+D) The routers stop exchanging LSAs.
+answer: B
+explanation:
+Sulle reti broadcast (default per Ethernet) OSPF elegge DR/BDR. Su un link con solo due router è inutile: con network type point-to-point l'adiacenza diventa FULL direttamente, senza attese per l'elezione, e non viene generato l'LSA type 2. I timer restano 10/40 secondi (come broadcast).
+reference: Exam topic 3.4.b - Point-to-point network type
+[/Q]
+
+[Q]
+id: IPC-009
+domain: 3
+type: FILL
+text:
+With the default OSPF reference bandwidth (100 Mbps), what is the OSPF cost of a 10 Mbps Ethernet interface? (Enter a number.)
+answer: 10
+explanation:
+Costo OSPF = reference bandwidth / bandwidth dell'interfaccia = 100 Mbps / 10 Mbps = 10.
+Con il default, FastEthernet, GigabitEthernet e 10GigE hanno tutte costo 1 (il minimo): per questo si consiglia "auto-cost reference-bandwidth 100000" (in Mbps) su TUTTI i router del dominio.
+reference: Exam topic 3.4 - Single area OSPFv2
+[/Q]
+
+[Q]
+id: IPC-010
+domain: 3
+type: SINGLE
+text:
+A router interface is configured with IP address 172.16.5.9/30. Which network command enables OSPF area 0 on this interface only, without matching any other address?
+options:
+A) network 172.16.5.8 0.0.0.3 area 0
+B) network 172.16.5.9 0.0.0.0 area 0
+C) network 172.16.0.0 0.0.255.255 area 0
+D) network 172.16.5.9 255.255.255.252 area 0
+answer: B
+explanation:
+Il comando "network" usa una wildcard mask: 0.0.0.0 significa "corrispondenza esatta di questo indirizzo", quindi abilita OSPF solo sull'interfaccia con 172.16.5.9. L'opzione A abilita OSPF anche per eventuali altri indirizzi nel /30; D usa erroneamente una subnet mask.
+Alternativa moderna: configurare "ip ospf 1 area 0" direttamente sull'interfaccia.
+reference: Exam topic 3.4 - Configure and verify single area OSPFv2
+[/Q]
+
+[Q]
+id: IPC-011
+domain: 3
+type: SINGLE
+text:
+Which command configures an IPv6 default route that points to the next hop 2001:DB8:0:1::1?
+options:
+A) ipv6 route 0.0.0.0/0 2001:DB8:0:1::1
+B) ipv6 route ::/0 2001:DB8:0:1::1
+C) ipv6 route ::/128 2001:DB8:0:1::1
+D) ip route ::/0 2001:DB8:0:1::1
+answer: B
+explanation:
+La default route IPv6 è ::/0. Ricorda che per instradare IPv6 serve anche "ipv6 unicast-routing" (globale).
+Se il next hop è un indirizzo link-local va specificata anche l'interfaccia di uscita: "ipv6 route ::/0 g0/0 FE80::1" (fully specified).
+reference: Exam topic 3.3 - Configure and verify IPv4 and IPv6 static routing (default route)
+[/Q]
+
+[Q]
+id: IPC-012
+domain: 3
+type: SINGLE
+text:
+Which first hop redundancy protocol is an open standard (IETF)?
+options:
+A) HSRP
+B) GLBP
+C) VRRP
+D) CARP
+answer: C
+explanation:
+- HSRP: proprietario Cisco, active/standby, MAC virtuale 0000.0C07.ACxx (v1) o 0000.0C9F.Fxxx (v2)
+- VRRP: standard IETF (RFC 5798), master/backup, MAC 0000.5E00.01xx; il preempt è attivo di default
+- GLBP: proprietario Cisco, bilancia il carico tra più gateway (AVG/AVF)
+reference: Exam topic 3.5 - Describe the purpose, functions, and concepts of first hop redundancy protocols
+[/Q]
+
+[Q]
+id: IPC-013
+domain: 3
+type: MULTI
+text:
+Which two statements about HSRP default behavior are true?
+options:
+A) The default priority is 100.
+B) Preemption is enabled by default.
+C) Preemption is disabled by default.
+D) The router with the lowest priority becomes active.
+E) Hosts use the physical IP address of the active router as their default gateway.
+answer: A, C
+explanation:
+HSRP: priorità di default 100 (range 0-255), vince la priorità più alta (a parità, l'IP più alto). Il preempt è DISABILITATO di default: va attivato con "standby X preempt" se si vuole che il router con priorità maggiore riprenda il ruolo active.
+Gli host usano come gateway l'IP VIRTUALE ("standby 1 ip 10.1.1.254").
+reference: Exam topic 3.5 - FHRP
+[/Q]
+
+[Q]
+id: IPC-014
+domain: 3
+type: SINGLE
+text:
+Refer to the exhibit. The OSPF adjacency between R1 and R2 is stuck. What is the most likely cause?
+exhibit:
+R1#show ip ospf neighbor
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+2.2.2.2           1   EXSTART/DR      00:00:36    10.0.12.2       GigabitEthernet0/0
+options:
+A) Mismatched hello timers
+B) Mismatched area IDs
+C) Mismatched interface MTU
+D) Duplicate network statements
+answer: C
+explanation:
+Hello timer o area diversi impediscono di vedere il vicino (nessuna entry o stato INIT). Un'adiacenza bloccata in EXSTART/EXCHANGE indica tipicamente MTU diverse: i pacchetti DBD più grandi della MTU del vicino vengono scartati.
+Soluzione: allineare l'MTU (oppure "ip ospf mtu-ignore", sconsigliato).
+reference: Exam topic 3.4.a - Neighbor adjacencies
+[/Q]
+
+[Q]
+id: IPC-015
+domain: 3
+type: SINGLE
+text:
+A router learns the prefix 172.16.10.0/24 from both OSPF (cost 20) and EIGRP (metric 3072000). Which route is installed in the routing table?
+options:
+A) The OSPF route, because its metric is lower
+B) The EIGRP route, because its administrative distance is lower
+C) Both routes, load balanced
+D) Neither, because of a routing conflict
+answer: B
+explanation:
+Per lo stesso prefisso con la stessa lunghezza appreso da protocolli diversi, il router confronta l'administrative distance: EIGRP interno 90 < OSPF 110 → vince EIGRP. Le metriche di protocolli diversi non sono confrontabili tra loro.
+reference: Exam topic 3.2 - Administrative distance / routing protocol metric
+[/Q]
+
+[Q]
+id: IPC-016
+domain: 3
+type: DRAG
+text:
+Order the OSPF neighbor states in the sequence in which they normally occur.
+items:
+Down => Step 1
+Init => Step 2
+2-Way => Step 3
+ExStart => Step 4
+Exchange => Step 5
+Loading => Step 6
+Full => Step 7
+explanation:
+Down → Init (ricevuto un hello) → 2-Way (il proprio RID compare nell'hello del vicino; qui avviene l'elezione DR/BDR) → ExStart (master/slave) → Exchange (scambio DBD) → Loading (LSR/LSU) → Full.
+Chicca: tra due DROTHER su una rete broadcast lo stato stabile è 2-WAY/DROTHER, ed è normale.
+reference: Exam topic 3.4.a - Neighbor adjacencies
+[/Q]
+
+[Q]
+id: IPC-017
+domain: 3
+type: SINGLE
+text:
+Which type of static route is configured with the command "ip route 192.168.50.0 255.255.255.0 GigabitEthernet0/0 10.0.0.2"?
+options:
+A) Directly attached static route
+B) Recursive static route
+C) Fully specified static route
+D) Floating static route
+answer: C
+explanation:
+- Recursive: solo next hop IP ("ip route ... 10.0.0.2"): il router deve fare un secondo lookup per trovare l'interfaccia di uscita.
+- Directly attached: solo interfaccia di uscita (su Ethernet sconsigliato: genera ARP per ogni destinazione).
+- Fully specified: interfaccia + next hop.
+- Floating: qualsiasi dei precedenti con AD aumentata.
+reference: Exam topic 3.3 - Static routing (network, host, default, floating)
+[/Q]
+
+[Q]
+id: IPC-018
+domain: 3
+type: SINGLE
+text:
+Which OSPF LSA type is generated by the designated router (DR) on a multiaccess network?
+options:
+A) Type 1 - Router LSA
+B) Type 2 - Network LSA
+C) Type 3 - Summary LSA
+D) Type 5 - External LSA
+answer: B
+explanation:
+In OSPF single-area (CCNA): ogni router genera un LSA Type 1 (Router) con i propri link; il DR genera un LSA Type 2 (Network) che descrive il segmento multiaccess e i router collegati. Type 3 sono generati dagli ABR (multi-area), Type 5 dagli ASBR.
+reference: Exam topic 3.4 - Single area OSPFv2
+[/Q]
+
+[Q]
+id: IPC-019
+domain: 3
+type: SINGLE
+text:
+By default, how many equal-cost paths can OSPF install in the routing table on a Cisco IOS router?
+options:
+A) 1
+B) 2
+C) 4
+D) 16
+answer: C
+explanation:
+OSPF (come EIGRP) installa di default fino a 4 percorsi a costo uguale (ECMP) e bilancia il traffico. Si cambia con "maximum-paths N" nel processo di routing. Nella tabella di routing compaiono più righe "via" per lo stesso prefisso.
+reference: Exam topic 3.2 - Forwarding decision / load balancing
+[/Q]
+
+[Q]
+id: IPC-020
+domain: 3
+type: SINGLE
+text:
+Refer to the exhibit. Which statement about the route to 10.20.30.0/24 is true?
+exhibit:
+R2#show ip route 10.20.30.0
+Routing entry for 10.20.30.0/24
+  Known via "ospf 1", distance 110, metric 3, type intra area
+  Last update from 10.0.23.3 on GigabitEthernet0/2, 00:03:41 ago
+  Routing Descriptor Blocks:
+  * 10.0.23.3, from 3.3.3.3, 00:03:41 ago, via GigabitEthernet0/2
+      Route metric is 3, traffic share count is 1
+options:
+A) The route was learned from an external routing domain.
+B) The route was originated by router 3.3.3.3 and is in the same area as R2.
+C) The route has an administrative distance of 3.
+D) The route is a static route redistributed into OSPF.
+answer: B
+explanation:
+"type intra area" indica che la rete appartiene alla stessa area di R2 (codice "O" nella tabella). "from 3.3.3.3" è il router ID di chi ha originato l'LSA. distance 110 = AD, metric 3 = costo OSPF. Una route esterna sarebbe "O E2"/"O E1".
+reference: Exam topic 3.1 - Interpret the components of a routing table
+[/Q]
+
+[Q]
+id: IPC-021
+domain: 3
+type: SINGLE
+text:
+Which statement about the "Gateway of last resort" shown in "show ip route" is true?
+options:
+A) It is the route with the lowest administrative distance.
+B) It is used when no more specific route matches the destination.
+C) It is always learned through a routing protocol.
+D) It is required for the router to forward traffic to connected networks.
+answer: B
+explanation:
+Il gateway of last resort è il next hop della default route (0.0.0.0/0, codice "S*" se statica o "O*E2" se da OSPF con "default-information originate"). Viene usato quando nessun'altra route corrisponde. Senza default route, i pacchetti verso destinazioni sconosciute vengono scartati (e il router invia un ICMP unreachable).
+reference: Exam topic 3.1.e - Gateway of last resort
+[/Q]
