@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build JAR (solo JDK)",
+            "type": "shell",
+            "command": "./build.sh",
+            "windows": { "command": ".\\build.bat" },
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "Avvia JAR",
+            "type": "shell",
+            "command": "java -jar dist/ccna-examlab.jar",
+            "windows": { "command": "java -jar dist\\ccna-examlab.jar" },
+            "dependsOn": "Build JAR (solo JDK)",
+            "problemMatcher": []
+        }
+    ]
+}

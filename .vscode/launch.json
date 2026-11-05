@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Avvia CCNA ExamLab",
+            "request": "launch",
+            "mainClass": "com.ccnaexamlab.app.Main",
+            "projectName": "ccna-examlab"
+        },
+        {
+            "type": "java",
+            "name": "Valida banca domande",
+            "request": "launch",
+            "mainClass": "com.ccnaexamlab.app.Main",
+            "projectName": "ccna-examlab",
+            "args": "--validate",
+            "console": "integratedTerminal"
+        }
+    ]
+}

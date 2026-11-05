@@ -74,6 +74,15 @@ mvn package
 java -jar target/ccna-examlab.jar
 ```
 
+**Con Visual Studio Code:**
+
+1. Installa un **JDK 17+** (es. [Eclipse Temurin](https://adoptium.net)) e l'estensione
+   **Extension Pack for Java** (VS Code la propone automaticamente all'apertura della cartella).
+2. *File → Apri cartella…* e seleziona la cartella del progetto (quella che contiene `pom.xml`).
+3. Attendi che in basso compaia "Java: Ready" (il progetto Maven viene importato da solo, non serve installare Maven).
+4. Premi **F5** (oppure *Esegui e debug* → "Avvia CCNA ExamLab").
+5. Per creare il JAR: **Ctrl+Shift+B** (task "Build JAR (solo JDK)") → `dist/ccna-examlab.jar`.
+
 **Validare i file delle domande** (utile prima di un commit):
 
 ```bash
