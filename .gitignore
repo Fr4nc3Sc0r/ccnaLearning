@@ -1,0 +1,22 @@
+# File personali (docs, README, script): restano solo in locale, non vanno su git
+local/
+
+# Output di build
+build/
+dist/
+target/
+out/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+nbproject/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
