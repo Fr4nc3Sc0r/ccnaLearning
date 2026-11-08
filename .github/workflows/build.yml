@@ -13,11 +13,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Build
-        run: mvn -B package
-      - name: Validazione domande
-        run: java -jar target/ccna-examlab.jar --validate
+      - name: Build e validazione domande
+        run: sh build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: ccna-examlab
-          path: target/ccna-examlab.jar
+          path: dist/ccna-examlab.jar

@@ -7,6 +7,8 @@ Segue lo stesso metodo dei migliori simulatori commerciali di practice exam: esa
 modalità studio con spiegazioni dettagliate, esami personalizzati sui punti deboli e report con il
 punteggio per dominio.
 
+![Menu principale](docs/screenshots/home.png)
+
 ## Funzionalità
 
 | Funzione | Descrizione |
@@ -23,6 +25,10 @@ punteggio per dominio.
 | **Storico e progressi** | Storico degli esami, grafico dei punteggi e accuratezza per dominio, salvati su disco. |
 | **Cheat sheet** | Schede di ripasso: subnetting, IPv6, AD, OSPF, STP, wireless, NAT/DHCP/QoS, porte, sicurezza, automazione, comandi IOS, consigli d'esame. |
 | **Calcolatore subnet** | Rete, broadcast, range host, wildcard, magic number e rappresentazione binaria. |
+<p>
+<img src="docs/screenshots/studio.png" width="49%" alt="Modalità studio">
+<img src="docs/screenshots/risultati.png" width="49%" alt="Report risultati">
+</p>
 
 ## Contenuti
 
@@ -50,15 +56,20 @@ A queste si aggiungono le domande di subnetting generate senza limiti.
 
 ## Compilazione ed esecuzione
 
+Serve solo il JDK, non Maven:
+
 ```bash
-mvn package
-java -jar target/ccna-examlab.jar
+./build.sh            # Linux / macOS  → dist/ccna-examlab.jar
+build.bat             # Windows
+java -jar dist/ccna-examlab.jar
 ```
+
+Lo script compila i sorgenti, crea il JAR e verifica la banca domande.
 
 **Validare i file delle domande** (utile prima di un commit):
 
 ```bash
-java -jar target/ccna-examlab.jar --validate
+java -jar dist/ccna-examlab.jar --validate
 ```
 
 Opzioni JVM facoltative:
@@ -70,7 +81,8 @@ Opzioni JVM facoltative:
 
 ```
 ccnaLearning/
-├── pom.xml                      # build Maven (nessuna dipendenza)
+├── build.sh / build.bat         # build con il solo JDK
+├── docs/screenshots/
 ├── .github/workflows/build.yml  # CI: compila e valida le domande
 └── src/main/
     ├── java/com/ccnaexamlab/
