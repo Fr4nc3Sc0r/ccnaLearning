@@ -1,4 +1,4 @@
-# CCNA ExamLab
+# Lordoc
 
 Simulatore d'esame **desktop** per la preparazione alla certificazione **Cisco CCNA 200-301**, scritto in
 **Java + Swing**. Usa solo la libreria standard del JDK, senza dipendenze esterne.
@@ -59,9 +59,9 @@ A queste si aggiungono le domande di subnetting generate senza limiti.
 Serve solo il JDK, non Maven:
 
 ```bash
-./build.sh            # Linux / macOS  → dist/ccna-examlab.jar
+./build.sh            # Linux / macOS  → dist/lordoc.jar
 build.bat             # Windows
-java -jar dist/ccna-examlab.jar
+java -jar dist/lordoc.jar
 ```
 
 Lo script compila i sorgenti, crea il JAR e verifica la banca domande.
@@ -69,13 +69,13 @@ Lo script compila i sorgenti, crea il JAR e verifica la banca domande.
 **Validare i file delle domande** (utile prima di un commit):
 
 ```bash
-java -jar dist/ccna-examlab.jar --validate
+java -jar dist/lordoc.jar --validate
 ```
 
 Opzioni JVM facoltative:
 
-- `-Dccna.laf=Nimbus` per forzare un look and feel (default: quello del sistema)
-- `-Dccna.examlab.home=/percorso` per cambiare la cartella dei dati utente
+- `-Dlordoc.laf=Nimbus` per forzare un look and feel (default: quello del sistema)
+- `-Dlordoc.home=/percorso` per cambiare la cartella dei dati utente
 
 ## Struttura del progetto
 
@@ -85,7 +85,7 @@ ccnaLearning/
 ├── docs/screenshots/
 ├── .github/workflows/build.yml  # CI: compila e valida le domande
 └── src/main/
-    ├── java/com/ccnaexamlab/
+    ├── java/com/lordoc/
     │   ├── app/        Main (avvio, --validate), AppContext (servizi condivisi)
     │   ├── model/      Domain, Question, Response, ExamSession, ExamResult, ...
     │   ├── data/       QuestionParser, QuestionBank, SubnetQuestionGenerator, UserDataStore
@@ -99,11 +99,14 @@ ccnaLearning/
 
 ## Dati utente
 
-Storico e statistiche vengono salvati in `~/.ccna-examlab/`:
+Storico e statistiche vengono salvati in `~/.lordoc/`:
 
 - `history.tsv`: esami svolti (data, esame, modalità, punteggio, dettaglio per dominio)
 - `stats.tsv`: per ogni domanda, quante volte è stata vista, risposte corrette, ultimo esito e marcatura
 - `questions/`: metti qui i tuoi file `.txt` di domande; vengono caricati all'avvio
+
+Se avevi usato la versione precedente (chiamata "CCNA ExamLab", cartella `~/.ccna-examlab`), al primo
+avvio la cartella viene rinominata automaticamente in `~/.lordoc`: storico e statistiche non vanno persi.
 
 ## Formato delle domande
 

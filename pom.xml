@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ccnaexamlab</groupId>
-    <artifactId>ccna-examlab</artifactId>
+    <groupId>com.lordoc</groupId>
+    <artifactId>lordoc</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>CCNA ExamLab</name>
+    <name>Lordoc</name>
     <description>Simulatore d'esame per Cisco CCNA 200-301 (Java Swing, nessuna dipendenza esterna)</description>
 
     <properties>
@@ -19,7 +19,7 @@
     <!-- Nessuna dipendenza esterna: solo la libreria standard di Java. -->
 
     <build>
-        <finalName>ccna-examlab</finalName>
+        <finalName>lordoc</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -28,7 +28,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.ccnaexamlab.app.Main</mainClass>
+                            <mainClass>com.lordoc.app.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

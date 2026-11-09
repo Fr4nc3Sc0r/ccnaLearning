@@ -17,5 +17,5 @@ jobs:
         run: sh build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: ccna-examlab
-          path: dist/ccna-examlab.jar
+          name: lordoc
+          path: dist/lordoc.jar
